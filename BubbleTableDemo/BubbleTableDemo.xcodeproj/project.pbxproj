@@ -63,6 +63,7 @@
 		65731625188EEBA4001F51D3 /* messageBubbleTyping@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 657315FE188EEBA4001F51D3 /* messageBubbleTyping@2x.png */; };
 		65731629188EEBD6001F51D3 /* avatar.png in Resources */ = {isa = PBXBuildFile; fileRef = 65731627188EEBD6001F51D3 /* avatar.png */; };
 		6573162A188EEBD6001F51D3 /* avatar@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 65731628188EEBD6001F51D3 /* avatar@2x.png */; };
+		BC721709199A81C000E35AF7 /* demo.png in Resources */ = {isa = PBXBuildFile; fileRef = BC721708199A81C000E35AF7 /* demo.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -142,6 +143,7 @@
 		657315FE188EEBA4001F51D3 /* messageBubbleTyping@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "messageBubbleTyping@2x.png"; sourceTree = "<group>"; };
 		65731627188EEBD6001F51D3 /* avatar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = avatar.png; sourceTree = "<group>"; };
 		65731628188EEBD6001F51D3 /* avatar@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "avatar@2x.png"; sourceTree = "<group>"; };
+		BC721708199A81C000E35AF7 /* demo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = demo.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -307,6 +309,7 @@
 		65731626188EEBD6001F51D3 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				BC721708199A81C000E35AF7 /* demo.png */,
 				65731627188EEBD6001F51D3 /* avatar.png */,
 				65731628188EEBD6001F51D3 /* avatar@2x.png */,
 			);
@@ -408,6 +411,7 @@
 				65731629188EEBD6001F51D3 /* avatar.png in Resources */,
 				65731615188EEBA4001F51D3 /* imageBar@2x.png in Resources */,
 				65731607188EEBA4001F51D3 /* bubbleFlatOutgoing@2x.png in Resources */,
+				BC721709199A81C000E35AF7 /* demo.png in Resources */,
 				6573160B188EEBA4001F51D3 /* bubbleSquareOutgoing@2x.png in Resources */,
 				65731619188EEBA4001F51D3 /* imageInput@2x.png in Resources */,
 				65731623188EEBA4001F51D3 /* messageBubbleHighlighted@2x.png in Resources */,

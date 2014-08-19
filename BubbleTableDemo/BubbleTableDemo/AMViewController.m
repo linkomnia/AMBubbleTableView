@@ -120,6 +120,11 @@
 	return self.data[indexPath.row][@"text"];
 }
 
+- (UIImage*)msgImageForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return [UIImage imageNamed:@"demo"];
+}
+
+
 - (NSDate *)timestampForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	return [NSDate date];

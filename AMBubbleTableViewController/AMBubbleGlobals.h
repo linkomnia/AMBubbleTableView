@@ -26,6 +26,7 @@ typedef enum {
 } AMBubbleAccessoryPosition;
 
 #define kMessageTextWidth	(UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) ? 380.0f : 180.0f
+#define kMessageImageWidth	(UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) ? 380.0f : 180.0f
 
 @protocol AMBubbleTableDataSource <NSObject>
 @required
@@ -34,6 +35,7 @@ typedef enum {
 - (NSString *)textForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (NSDate *)timestampForRowAtIndexPath:(NSIndexPath *)indexPath;
 @optional
+- (UIImage*)msgImageForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UIImage*)avatarForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (NSString*)usernameForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UIColor*)usernameColorForRowAtIndexPath:(NSIndexPath *)indexPath;

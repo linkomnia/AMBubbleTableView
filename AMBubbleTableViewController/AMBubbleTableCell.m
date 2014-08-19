@@ -18,6 +18,8 @@
 @property (nonatomic, strong) UILabel*		labelUsername;
 @property (nonatomic, strong) UIView<AMBubbleAccessory>*		bubbleAccessory;
 
+@property (nonatomic, strong) UIImageView* msgImageView;
+
 @end
 
 @implementation AMBubbleTableCell
@@ -34,9 +36,11 @@
 		self.imageBackground = [[UIImageView alloc] init];
 		self.labelUsername = [[UILabel alloc] init];
 		self.bubbleAccessory = [[NSClassFromString(options[AMOptionsAccessoryClass]) alloc] init];
+        self.msgImageView = [[UIImageView alloc] init];
 		[self.bubbleAccessory setOptions:options];
 		[self.contentView addSubview:self.imageBackground];
 		[self.imageBackground addSubview:self.textView];
+        [self.imageBackground addSubview:self.msgImageView];
 		[self.imageBackground addSubview:self.labelUsername];
 		[self.contentView addSubview:self.bubbleAccessory];
 		[self.textView setUserInteractionEnabled:YES];
@@ -57,6 +61,21 @@
 	CGSize sizeText = [params[@"text"] sizeWithFont:textFont
 								  constrainedToSize:CGSizeMake(kMessageTextWidth, CGFLOAT_MAX)
 									  lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize sizeImage;
+    if (params[@"msgImage"]) {
+        UIImage *img = params[@"msgImage"];
+        CGFloat x = MIN(img.size.width, kMessageImageWidth);
+        CGFloat y;
+        if (img.size.width > kMessageImageWidth) {
+            y = (kMessageTextWidth/img.size.width)*img.size.height;
+        } else {
+            y = img.size.height;
+        }
+        sizeImage = CGSizeMake(x, y);
+    } else {
+        sizeImage = CGSizeMake(0, 0);
+    }
+    //NSLog(@"%f, %f", sizeImage.width, sizeImage.height);
 	
 	
 	[self.textView setBackgroundColor:[UIColor clearColor]];
@@ -86,10 +105,10 @@
 												  self.bubbleAccessory.frame.size.height)];
 		
 		
-		CGRect rect = CGRectMake(width - sizeText.width - 34.0f - self.bubbleAccessory.frame.size.width,
+		CGRect rect = CGRectMake(width - MAX(sizeText.width, sizeImage.width) - 34.0f - self.bubbleAccessory.frame.size.width,
 								 textFont.lineHeight - 13.0f,
-								 sizeText.width + 34.0f,
-								 sizeText.height + 12.0f);
+								 MAX(sizeText.width, sizeImage.width) + 34.0f,
+								 sizeText.height + sizeImage.height + 12.0f);
 		
 		if (rect.size.height > self.bubbleAccessory.frame.size.height) {
 			if ([self.options[AMOptionsAccessoryPosition] intValue] == AMBubbleAccessoryDown) {
@@ -111,7 +130,8 @@
 											 4.0f,
 											 sizeText.width + 5.0f,
 											 sizeText.height)
-						  andText:params[@"text"]];
+                    msgImageFrame:CGRectMake(12.0f, 4.0f + sizeText.height, sizeImage.width + 5.0f, sizeImage.height)
+						  andTextParams:params];
 	}
 	
 	if (type == AMBubbleCellReceived) {
@@ -139,8 +159,8 @@
 		
 		CGRect rect = CGRectMake(0.0f + self.bubbleAccessory.frame.size.width,
 								 textFont.lineHeight - 13.0f,
-								 MAX(sizeText.width, usernameSize.width) + 34.0f, // Accounts for usernames longer than text
-								 sizeText.height + 12.0f + usernameSize.height);
+								 MAX(MAX(sizeText.width, sizeImage.width), usernameSize.width) + 34.0f, // Accounts for usernames longer than text
+								 sizeText.height + sizeImage.height + 12.0f + usernameSize.height);
 		
 		if (rect.size.height > self.bubbleAccessory.frame.size.height) {
 			if ([self.options[AMOptionsAccessoryPosition] intValue] == AMBubbleAccessoryDown) {
@@ -159,7 +179,8 @@
 		[self setupBubbleWithType:type
 					   background:rect
 						textFrame:CGRectMake(22.0f, 4.0 + usernameSize.height, sizeText.width + 5.0f, sizeText.height)
-						  andText:params[@"text"]];
+                    msgImageFrame:CGRectMake(22.0f, 4.0 + usernameSize.height + sizeText.height, sizeImage.width + 5.0, sizeImage.height)
+						  andTextParams:params];
 	}
 	
 	if (type == AMBubbleCellTimestamp) {
@@ -180,7 +201,7 @@
 	
 }
 
-- (void)setupBubbleWithType:(AMBubbleCellType)type background:(CGRect)frame textFrame:(CGRect)textFrame andText:(NSString*)text
+- (void)setupBubbleWithType:(AMBubbleCellType)type background:(CGRect)frame textFrame:(CGRect)textFrame msgImageFrame:(CGRect)msgImageFrame andTextParams:(NSDictionary*)textParams
 {
 	[self.imageBackground setFrame:frame];
 	
@@ -195,11 +216,21 @@
 	// Dirty fix for ios previous than 7.0
 	if (!SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
 		textFrame.size.width += 12;
+        msgImageFrame.size.width += 12;
 	}
 	[self.textView setFrame:textFrame];
 	[self.textView setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
 	[self.textView setText:nil];
-	[self.textView setText:text];
+	[self.textView setText:textParams[@"text"]];
+    [self.msgImageView setFrame:msgImageFrame];
+    self.msgImageView.image = textParams[@"msgImage"];
+    
+    //[self.imageView setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
+    
+    NSLog(@"%f, %f, %f, %f", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
+    NSLog(@"%f, %f, %f, %f", textFrame.origin.x, textFrame.origin.y, textFrame.size.width, textFrame.size.height);
+    NSLog(@"%f, %f, %f, %f", msgImageFrame.origin.x, msgImageFrame.origin.y, msgImageFrame.size.width, msgImageFrame.size.height);
+    
 }
 
 

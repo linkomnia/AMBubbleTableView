@@ -193,6 +193,12 @@
 	AMBubbleCellType type = [self.dataSource cellTypeForRowAtIndexPath:indexPath];
 	NSString* cellID = [NSString stringWithFormat:@"cell_%d", type];
 	NSString* text = [self.dataSource textForRowAtIndexPath:indexPath];
+    UIImage* msgImage;
+    if ([self.dataSource respondsToSelector:@selector(msgImageForRowAtIndexPath:)]) {
+        msgImage = [self.dataSource msgImageForRowAtIndexPath:indexPath];
+    } else {
+        msgImage = nil;
+    }
 	NSDate* date = [self.dataSource timestampForRowAtIndexPath:indexPath];
 	AMBubbleTableCell* cell = [tableView dequeueReusableCellWithIdentifier:cellID];
 	
@@ -255,7 +261,8 @@
 		 @"index": @(indexPath.row),
 		 @"username": (username ? username : @""),
 		 @"avatar": (avatar ? avatar: @""),
-		 @"color": (color ? color: @"")
+		 @"color": (color ? color: @""),
+         @"msgImage": msgImage,
 		 }];
 	}
 	
@@ -291,6 +298,22 @@
 	if (type == AMBubbleCellTimestamp) {
 		return [self.options[AMOptionsTimestampHeight] floatValue];
 	}
+    
+    CGSize sizeImage;
+    if ([self.dataSource msgImageForRowAtIndexPath:indexPath]) {
+        UIImage *img = [self.dataSource msgImageForRowAtIndexPath:indexPath];
+        CGFloat x = MIN(img.size.width, kMessageTextWidth);
+        CGFloat y;
+        if (img.size.width > kMessageTextWidth) {
+            y = (kMessageTextWidth/img.size.width)*img.size.height;
+        } else {
+            y = img.size.height;
+        }
+        sizeImage = CGSizeMake(x, y);
+    } else {
+        sizeImage = CGSizeMake(0, 0);
+    }
+    
     
     // Set MessageCell height.
 	CGSize size;
@@ -331,7 +354,7 @@
 	}
 	
 	// Account for either the bubble or accessory size
-    return MAX(size.height + 17.0f + usernameSize.height,
+    return MAX(sizeImage.height + size.height + 17.0f + usernameSize.height,
 			   [self.options[AMOptionsAccessorySize] floatValue] + [self.options[AMOptionsAccessoryMargin] floatValue]);
 }
 
