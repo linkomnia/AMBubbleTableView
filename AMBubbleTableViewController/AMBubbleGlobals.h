@@ -46,6 +46,7 @@ typedef enum {
 @optional
 - (void)swipedCellAtIndexPath:(NSIndexPath *)indexPath withFrame:(CGRect)frame andDirection:(UISwipeGestureRecognizerDirection)direction;
 - (void)longPressedCellAtIndexPath:(NSIndexPath *)indexPath withFrame:(CGRect)frame;
+- (void)imageButtonClick:(id)controller;
 @end
 
 @protocol AMBubbleAccessory <NSObject>

@@ -23,6 +23,7 @@
 @property (nonatomic, strong) NSDateFormatter* dateFormatter;
 @property (nonatomic, strong) UITextView*	tempTextView;
 @property (nonatomic, assign) float			previousTextFieldHeight;
+@property (nonatomic, strong) UIButton*     buttonImageChooser;
 
 @end
 
@@ -112,9 +113,9 @@
 	[self.view addSubview:self.imageInput];
 	
 	// Input field
-	CGFloat width = self.imageInput.frame.size.width - kButtonWidth;
+	CGFloat width = self.imageInput.frame.size.width - kButtonWidth - 26.0f - 3;
     
-    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(6.0f, 3.0f, width, kLineHeight)];
+    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(6.0f + 26.0f + 3, 3.0f, width, kLineHeight)];
     [self.textView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [self.textView setScrollIndicatorInsets:UIEdgeInsetsMake(10.0f, 0.0f, 10.0f, 8.0f)];
     [self.textView setContentInset:UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f)];
@@ -179,6 +180,12 @@
     [self.buttonSend addTarget:self	action:@selector(sendPressed:) forControlEvents:UIControlEventTouchUpInside];
 	
     [self.imageInput addSubview:self.buttonSend];
+    
+    self.buttonImageChooser = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.buttonImageChooser setImage:[UIImage imageNamed:@"photoIcon"] forState:UIControlStateNormal];
+    self.buttonImageChooser.frame = CGRectMake(6.0f, [self.options[AMOptionsButtonOffset] floatValue], 26.0f, 26.0f);
+    [self.imageInput addSubview:self.buttonImageChooser];
+    
 }
 
 #pragma mark - TableView Delegate
@@ -566,6 +573,12 @@
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
 	[self.tableView reloadData];
+}
+
+- (void)clickChooseImage:(id)sender {
+    if ([self.delegate respondsToSelector:@selector(imageButtonClick:)]) {
+        [self.delegate imageButtonClick:self];
+    }
 }
 
 @end
