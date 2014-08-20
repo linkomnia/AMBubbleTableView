@@ -260,6 +260,7 @@
 			username = [self.dataSource usernameForRowAtIndexPath:indexPath];
 		}
 		stringDate = [self.dateFormatter stringFromDate:date];
+        if (msgImage) {
 		[cell setupCellWithType:type
 					  withWidth:self.tableView.frame.size.width
 					  andParams:@{
@@ -271,6 +272,18 @@
 		 @"color": (color ? color: @""),
          @"msgImage": msgImage,
 		 }];
+        } else {
+            [cell setupCellWithType:type
+                          withWidth:self.tableView.frame.size.width
+                          andParams:@{
+                                      @"text": text,
+                                      @"date": stringDate,
+                                      @"index": @(indexPath.row),
+                                      @"username": (username ? username : @""),
+                                      @"avatar": (avatar ? avatar: @""),
+                                      @"color": (color ? color: @""),
+                                      }];
+        }
 	}
 	
 	return cell;
@@ -307,7 +320,7 @@
 	}
     
     CGSize sizeImage;
-    if ([self.dataSource msgImageForRowAtIndexPath:indexPath]) {
+    if ([self.dataSource respondsToSelector:@selector(msgImageForRowAtIndexPath:)]) {
         UIImage *img = [self.dataSource msgImageForRowAtIndexPath:indexPath];
         CGFloat x = MIN(img.size.width, kMessageTextWidth);
         CGFloat y;

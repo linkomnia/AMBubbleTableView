@@ -223,7 +223,11 @@
 	[self.textView setText:nil];
 	[self.textView setText:textParams[@"text"]];
     [self.msgImageView setFrame:msgImageFrame];
-    self.msgImageView.image = textParams[@"msgImage"];
+    if (textParams[@"msgImage"]) {
+        self.msgImageView.image = textParams[@"msgImage"];
+    } else {
+        self.msgImageView.image = nil;
+    }
     
     //[self.imageView setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
     
