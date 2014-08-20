@@ -319,17 +319,19 @@
 		return [self.options[AMOptionsTimestampHeight] floatValue];
 	}
     
-    CGSize sizeImage;
+    CGSize sizeImage = CGSizeMake(0, 0);
     if ([self.dataSource respondsToSelector:@selector(msgImageForRowAtIndexPath:)]) {
         UIImage *img = [self.dataSource msgImageForRowAtIndexPath:indexPath];
-        CGFloat x = MIN(img.size.width, kMessageTextWidth);
-        CGFloat y;
-        if (img.size.width > kMessageTextWidth) {
-            y = (kMessageTextWidth/img.size.width)*img.size.height;
-        } else {
-            y = img.size.height;
+        if (img) {
+            CGFloat x = MIN(img.size.width, kMessageTextWidth);
+            CGFloat y;
+            if (img.size.width > kMessageTextWidth) {
+                y = (kMessageTextWidth/img.size.width)*img.size.height;
+            } else {
+                y = img.size.height;
+            }
+            sizeImage = CGSizeMake(x, y);
         }
-        sizeImage = CGSizeMake(x, y);
     } else {
         sizeImage = CGSizeMake(0, 0);
     }
