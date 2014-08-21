@@ -184,6 +184,7 @@
     self.buttonImageChooser = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.buttonImageChooser setImage:[UIImage imageNamed:@"photoIcon"] forState:UIControlStateNormal];
     self.buttonImageChooser.frame = CGRectMake(6.0f, [self.options[AMOptionsButtonOffset] floatValue], 26.0f, 26.0f);
+    [self.buttonImageChooser addTarget:self action:@selector(clickChooseImage:) forControlEvents:UIControlEventTouchUpInside];
     [self.imageInput addSubview:self.buttonImageChooser];
     
 }
