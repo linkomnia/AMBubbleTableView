@@ -229,7 +229,7 @@
     }
     if (textParams[@"msgImageURLString"]) {
         NSURLRequest * req = [[NSURLRequest alloc]initWithURL:[NSURL URLWithString:textParams[@"msgImageURLString"]]];
-        [self.msgImageView setImageWithURLRequest:req placeholderImage:nil success:^(NSURLRequest * request, NSHTTPURLResponse * response, UIImage * image) {
+        [self.imageView setImageWithURLRequest:req placeholderImage:nil success:^(NSURLRequest * request, NSHTTPURLResponse * response, UIImage * image) {
             // callback
         } failure:^(NSURLRequest * request, NSHTTPURLResponse * response, NSError * error) {
         }];
