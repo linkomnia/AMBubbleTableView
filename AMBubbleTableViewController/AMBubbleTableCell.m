@@ -9,7 +9,6 @@
 #import "AMBubbleTableCell.h"
 #import "AMBubbleAccessoryView.h"
 #import <QuartzCore/QuartzCore.h>
-#import <AFNetworking/UIImageView+AFNetworking.h>
 
 @interface AMBubbleTableCell ()
 
@@ -76,6 +75,8 @@
     } else {
         sizeImage = CGSizeMake(0, 0);
     }
+    //NSLog(@"%f, %f", sizeImage.width, sizeImage.height);
+	
 	
 	[self.textView setBackgroundColor:[UIColor clearColor]];
 	[self.textView setFont:textFont];
@@ -226,13 +227,6 @@
         self.msgImageView.image = textParams[@"msgImage"];
     } else {
         self.msgImageView.image = nil;
-    }
-    if (textParams[@"msgImageURLString"]) {
-        NSURLRequest * req = [[NSURLRequest alloc]initWithURL:[NSURL URLWithString:textParams[@"msgImageURLString"]]];
-        [self.imageView setImageWithURLRequest:req placeholderImage:nil success:^(NSURLRequest * request, NSHTTPURLResponse * response, UIImage * image) {
-            // callback
-        } failure:^(NSURLRequest * request, NSHTTPURLResponse * response, NSError * error) {
-        }];
     }
     
     //[self.imageView setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
