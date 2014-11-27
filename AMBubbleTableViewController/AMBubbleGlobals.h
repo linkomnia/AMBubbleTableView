@@ -36,6 +36,7 @@ typedef enum {
 - (NSDate *)timestampForRowAtIndexPath:(NSIndexPath *)indexPath;
 @optional
 - (UIImage*)msgImageForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (NSString*)msgImageURLStringForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UIImage*)avatarForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (NSString*)usernameForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UIColor*)usernameColorForRowAtIndexPath:(NSIndexPath *)indexPath;

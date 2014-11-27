@@ -207,6 +207,12 @@
     } else {
         msgImage = nil;
     }
+    NSString* msgImageURLString;
+    if ([self.dataSource respondsToSelector:@selector(msgImageURLStringForRowAtIndexPath:)]) {
+        msgImageURLString = [self.dataSource msgImageURLStringForRowAtIndexPath:indexPath];
+    } else {
+        msgImageURLString = nil;
+    }
 	NSDate* date = [self.dataSource timestampForRowAtIndexPath:indexPath];
 	AMBubbleTableCell* cell = [tableView dequeueReusableCellWithIdentifier:cellID];
 	
@@ -273,6 +279,18 @@
 		 @"color": (color ? color: @""),
          @"msgImage": msgImage,
 		 }];
+        } else if(msgImageURLString) {
+            [cell setupCellWithType:type
+                          withWidth:self.tableView.frame.size.width
+                          andParams:@{
+                                      @"text": text,
+                                      @"date": stringDate,
+                                      @"index": @(indexPath.row),
+                                      @"username": (username ? username : @""),
+                                      @"avatar": (avatar ? avatar: @""),
+                                      @"color": (color ? color: @""),
+                                      @"msgImageURLString":msgImageURLString,
+                                      }];
         } else {
             [cell setupCellWithType:type
                           withWidth:self.tableView.frame.size.width
