@@ -44,6 +44,7 @@ typedef enum {
 @protocol AMBubbleTableDelegate <NSObject>
 - (void)didSendText:(NSString*)text;
 @optional
+- (void)pressedMessageImageAtIndexPath:(NSIndexPath *)indexPath;
 - (void)swipedCellAtIndexPath:(NSIndexPath *)indexPath withFrame:(CGRect)frame andDirection:(UISwipeGestureRecognizerDirection)direction;
 - (void)longPressedCellAtIndexPath:(NSIndexPath *)indexPath withFrame:(CGRect)frame;
 - (void)imageButtonClick:(id)controller;
@@ -131,6 +132,9 @@ FOUNDATION_EXPORT NSString *const AMOptionsButtonFont;
 
 // Enable Swipe gesture
 FOUNDATION_EXPORT NSString *const AMOptionsBubbleSwipeEnabled;
+
+// Enable Message Press gesture
+FOUNDATION_EXPORT NSString *const AMOptionsMessageImagePressEnabled;
 
 // Enable Long press gesture
 FOUNDATION_EXPORT NSString *const AMOptionsBubblePressEnabled;
