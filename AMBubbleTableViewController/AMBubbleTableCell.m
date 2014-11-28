@@ -237,6 +237,17 @@
     
 }
 
+-(void)setMessageImageGesture:(UIGestureRecognizer *)gesture
+{
+    if (!self.msgImageView) {
+        return;
+    }
+    for (UIGestureRecognizer * exsiting in self.msgImageView.gestureRecognizers) {
+        [self.msgImageView removeGestureRecognizer:exsiting];
+    }
+    [self.msgImageView addGestureRecognizer:gesture];
+}
+
 
 
 @end

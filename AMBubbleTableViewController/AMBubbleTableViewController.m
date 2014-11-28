@@ -231,11 +231,11 @@
 			swipeGesture.direction = UISwipeGestureRecognizerDirectionLeft|UISwipeGestureRecognizerDirectionRight;
 			[cell addGestureRecognizer:swipeGesture];
 		}
-		if ([self.options[AMOptionsBubblePressEnabled] boolValue]) {
-			UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressGesture:)];
-			[cell addGestureRecognizer:longPressGesture];
+		if ([self.options[AMOptionsMessageImagePressEnabled] boolValue]) {
+			UITapGestureRecognizer *messageImagePressGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleMessageImagePressGesture:)];
+			[cell setMessageImageGesture:messageImagePressGesture];
 		}
-	}
+    }
 	
 	// iPad cells are set by default to 320 pixels, this fixes the quirk
 	cell.contentView.frame = CGRectMake(cell.contentView.frame.origin.x,
@@ -299,11 +299,20 @@
 
 - (void)handleLongPressGesture:(UILongPressGestureRecognizer *)sender
 {
-	if ([self.delegate respondsToSelector:@selector(longPressedCellAtIndexPath:withFrame:)]) {
-		if (sender.state == UIGestureRecognizerStateBegan) {
-			[self.delegate longPressedCellAtIndexPath:[NSIndexPath indexPathForRow:sender.view.tag inSection:0] withFrame:sender.view.frame];
-		}
-	}
+    if ([self.delegate respondsToSelector:@selector(longPressedCellAtIndexPath:withFrame:)]) {
+        if (sender.state == UIGestureRecognizerStateBegan) {
+            [self.delegate longPressedCellAtIndexPath:[NSIndexPath indexPathForRow:sender.view.tag inSection:0] withFrame:sender.view.frame];
+        }
+    }
+}
+
+- (void)handleMessageImagePressGesture:(UITapGestureRecognizer *)sender
+{
+    if ([self.delegate respondsToSelector:@selector(pressedMessageImageAtIndexPath:)]) {
+        if (sender.state == UIGestureRecognizerStateBegan) {
+            [self.delegate pressedMessageImageAtIndexPath:[NSIndexPath indexPathForRow:sender.view.tag inSection:0]];
+        }
+    }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
