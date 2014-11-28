@@ -18,7 +18,6 @@
 @property (nonatomic, strong) UILabel*		labelUsername;
 @property (nonatomic, strong) UIView<AMBubbleAccessory>*		bubbleAccessory;
 
-@property (nonatomic, strong) UIImageView* msgImageView;
 
 @end
 
@@ -237,7 +236,7 @@
     
 }
 
--(void)setMessageImageGesture:(UIGestureRecognizer *)gesture Tag:(NSUInteger)tag
+-(void)setMessageImageGesture:(UIGestureRecognizer *)gesture
 {
     if (!self.msgImageView) {
         return;
@@ -247,7 +246,6 @@
     }
     [self.msgImageView addGestureRecognizer:gesture];
     self.msgImageView.userInteractionEnabled = YES;
-    self.msgImageView.tag = tag;
 }
 
 

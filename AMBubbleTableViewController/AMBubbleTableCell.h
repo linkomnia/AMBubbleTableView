@@ -10,7 +10,9 @@
 
 @interface AMBubbleTableCell : UITableViewCell
 
+@property (nonatomic, strong) UIImageView* msgImageView;
+
 - (id)initWithOptions:(NSDictionary*)options reuseIdentifier:(NSString *)reuseIdentifier;
 - (void)setupCellWithType:(AMBubbleCellType)type withWidth:(float)width andParams:(NSDictionary*)params;
-- (void)setMessageImageGesture:(UIGestureRecognizer *)gesture Tag:(NSUInteger)tag;
+- (void)setMessageImageGesture:(UIGestureRecognizer *)gesture;
 @end
