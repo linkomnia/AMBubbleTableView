@@ -237,7 +237,7 @@
     
 }
 
--(void)setMessageImageGesture:(UIGestureRecognizer *)gesture
+-(void)setMessageImageGesture:(UIGestureRecognizer *)gesture Tag:(NSUInteger)tag
 {
     if (!self.msgImageView) {
         return;
@@ -246,6 +246,8 @@
         [self.msgImageView removeGestureRecognizer:exsiting];
     }
     [self.msgImageView addGestureRecognizer:gesture];
+    self.msgImageView.userInteractionEnabled = YES;
+    self.msgImageView.tag = tag;
 }
 
 

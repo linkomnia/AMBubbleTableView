@@ -233,7 +233,7 @@
 		}
 		if ([self.options[AMOptionsMessageImagePressEnabled] boolValue]) {
 			UITapGestureRecognizer *messageImagePressGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleMessageImagePressGesture:)];
-			[cell setMessageImageGesture:messageImagePressGesture];
+			[cell setMessageImageGesture:messageImagePressGesture Tag:indexPath.row]; // tag is for assigning gesture to correct index
 		}
     }
 	
