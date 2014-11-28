@@ -27,6 +27,7 @@ typedef enum {
 
 #define kMessageTextWidth	(UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) ? 380.0f : 180.0f
 #define kMessageImageWidth	(UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) ? 380.0f : 180.0f
+#define kMessageImageHeight	(UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) ? 380.0f : 180.0f
 
 @protocol AMBubbleTableDataSource <NSObject>
 @required

@@ -332,14 +332,15 @@
     if ([self.dataSource respondsToSelector:@selector(msgImageForRowAtIndexPath:)]) {
         UIImage *img = [self.dataSource msgImageForRowAtIndexPath:indexPath];
         if (img) {
-            CGFloat x = MIN(img.size.width, kMessageTextWidth);
-            CGFloat y;
-            if (img.size.width > kMessageTextWidth) {
-                y = (kMessageTextWidth/img.size.width)*img.size.height;
+            CGFloat width = 0, height = 0;
+            if (img.size.width > img.size.height) {
+                width = MIN(img.size.width, kMessageImageWidth);
+                height = img.size.height / img.size.width * width;
             } else {
-                y = img.size.height;
+                height = MIN(img.size.height, kMessageImageHeight);
+                width = img.size.width / img.size.height * height;
             }
-            sizeImage = CGSizeMake(x, y);
+            sizeImage = CGSizeMake(width, height);
         }
     } else {
         sizeImage = CGSizeMake(0, 0);
