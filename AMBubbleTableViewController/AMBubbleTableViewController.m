@@ -50,19 +50,25 @@
 
 - (void)setTableStyle:(AMBubbleTableStyle)style
 {
-	switch (style) {
-		case AMBubbleTableStyleDefault:
-			[self.options addEntriesFromDictionary:[AMBubbleGlobals defaultStyleDefault]];
-			break;
-		case AMBubbleTableStyleSquare:
-			[self.options addEntriesFromDictionary:[AMBubbleGlobals defaultStyleSquare]];
-			break;
-		case AMBubbleTableStyleFlat:
-			[self.options addEntriesFromDictionary:[AMBubbleGlobals defaultStyleFlat]];
-			break;
-		default:
-			break;
-	}
+    switch (style) {
+        case AMBubbleTableStyleDefault:
+            [self.options addEntriesFromDictionary:[AMBubbleGlobals defaultStyleDefault]];
+            break;
+        case AMBubbleTableStyleSquare:
+            [self.options addEntriesFromDictionary:[AMBubbleGlobals defaultStyleSquare]];
+            break;
+        case AMBubbleTableStyleFlat:
+            [self.options addEntriesFromDictionary:[AMBubbleGlobals defaultStyleFlat]];
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)setTableStyle:(AMBubbleTableStyle)style withCustomStyles:(NSDictionary *)customStyles
+{
+    [self setTableStyle:style];
+    [self.options addEntriesFromDictionary:customStyles];
 }
 
 - (void)viewWillAppear:(BOOL)animated

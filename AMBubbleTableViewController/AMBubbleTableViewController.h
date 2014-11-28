@@ -16,6 +16,7 @@
 @property (nonatomic, assign) id<AMBubbleTableDelegate> delegate;
 
 - (void)reloadTableScrollingToBottom:(BOOL)scroll;
+- (void)setTableStyle:(AMBubbleTableStyle)style withCustomStyles:(NSDictionary *)customStyles;
 - (void)setBubbleTableOptions:(NSDictionary *)options;
 - (void)setTableStyle:(AMBubbleTableStyle)style;
 - (void)scrollToBottomAnimated:(BOOL)animated;

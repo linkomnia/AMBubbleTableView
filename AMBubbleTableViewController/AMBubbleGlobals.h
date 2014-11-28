@@ -11,7 +11,8 @@
 typedef enum {
 	AMBubbleTableStyleDefault,
 	AMBubbleTableStyleSquare,
-	AMBubbleTableStyleFlat
+    AMBubbleTableStyleFlat,
+    AMBubbleTableStyleCustom,
 } AMBubbleTableStyle;
 
 typedef enum {
