@@ -309,9 +309,7 @@
 - (void)handleMessageImagePressGesture:(UITapGestureRecognizer *)sender
 {
     if ([self.delegate respondsToSelector:@selector(pressedMessageImageAtIndexPath:)]) {
-        if (sender.state == UIGestureRecognizerStateBegan) {
-            [self.delegate pressedMessageImageAtIndexPath:[NSIndexPath indexPathForRow:sender.view.tag inSection:0]];
-        }
+        [self.delegate pressedMessageImageAtIndexPath:[NSIndexPath indexPathForRow:sender.view.tag inSection:0]];
     }
 }
 
