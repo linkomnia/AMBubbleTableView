@@ -65,10 +65,10 @@
         UIImage *img = params[@"msgImage"];
         CGFloat width = 0, height = 0;
         if (img.size.width > img.size.height) {
-            width = MIN(img.size.width, kMessageImageWidth);
+            width = kMessageImageWidth;
             height = img.size.height / img.size.width * width;
         } else {
-            height = MIN(img.size.height, kMessageImageHeight);
+            height = kMessageImageHeight;
             width = img.size.width / img.size.height * height;
         }
         sizeImage = CGSizeMake(width, height);
