@@ -17,8 +17,7 @@
 @interface AMBubbleTableViewController () <UITableViewDataSource, UITableViewDelegate, UITextViewDelegate>
 
 @property (strong, nonatomic) NSMutableDictionary*	options;
-@property (nonatomic, strong) UIImageView*	imageInput;
-@property (nonatomic, strong) UIImageView*	imageInputBack;
+@property (nonatomic, strong) UIView*	imageInput;
 @property (nonatomic, strong) UIButton*		buttonSend;
 @property (nonatomic, strong) NSDateFormatter* dateFormatter;
 @property (nonatomic, strong) UITextView*	tempTextView;
@@ -111,20 +110,25 @@
 	
     // Input background
     CGRect inputFrame = CGRectMake(0.0f, self.view.frame.size.height - kInputHeight, self.view.frame.size.width, kInputHeight);
-	self.imageInput = [[UIImageView alloc] initWithImage:self.options[AMOptionsImageBar]];
+    if (self.options[AMOptionsImageBar] != [NSNull null]) {
+        self.imageInput = [[UIImageView alloc] init];
+        ((UIImageView *)self.imageInput).image = self.options[AMOptionsImageBar];
+    } else {
+        self.imageInput = [[UIView alloc]init];
+        self.imageInput.backgroundColor = [UIColor whiteColor];
+    }
 	[self.imageInput setFrame:inputFrame];
 	[self.imageInput setAutoresizingMask:(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin)];
 	[self.imageInput setUserInteractionEnabled:YES];
 	
 	[self.view addSubview:self.imageInput];
-	
-	// Input field
-	CGFloat width = self.imageInput.frame.size.width - kButtonWidth - 26.0f - 3;
     
+    
+    ///// alloc init views
+    // text field
+    CGFloat width = self.imageInput.frame.size.width - kButtonWidth - 26.0f - 3;
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(6.0f + 26.0f + 3, 3.0f, width, kLineHeight)];
     [self.textView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-    [self.textView setScrollIndicatorInsets:UIEdgeInsetsMake(10.0f, 0.0f, 10.0f, 8.0f)];
-    [self.textView setContentInset:UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f)];
     [self.textView setScrollsToTop:NO];
     [self.textView setUserInteractionEnabled:YES];
     [self.textView setFont:self.options[AMOptionsTextFieldFont]];
@@ -133,10 +137,10 @@
     [self.textView setKeyboardAppearance:UIKeyboardAppearanceDefault];
     [self.textView setKeyboardType:UIKeyboardTypeDefault];
     [self.textView setReturnKeyType:UIReturnKeyDefault];
-	
-	[self.textView setDelegate:self];
+    [self.textView setDelegate:self];
     [self.imageInput addSubview:self.textView];
-	
+    
+		
 	// This text view is used to get the content size
 	self.tempTextView = [[UITextView alloc] init];
     self.tempTextView.font = self.textView.font;
@@ -144,26 +148,19 @@
     CGSize size = [self.tempTextView sizeThatFits:CGSizeMake(self.textView.frame.size.width, FLT_MAX)];
     self.previousTextFieldHeight = size.height;
     
-	// Input field's background
-    self.imageInputBack = [[UIImageView alloc] initWithFrame:CGRectMake(self.textView.frame.origin.x - 1.0f,
-																		0.0f,
-																		self.textView.frame.size.width + 2.0f,
-																		self.imageInput.frame.size.height)];
-    [self.imageInputBack setImage:self.options[AMOptionsImageInput]];
-    [self.imageInputBack setAutoresizingMask:(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight)];
-    [self.imageInputBack setBackgroundColor:[UIColor clearColor]];
-	[self.imageInputBack setUserInteractionEnabled:NO];
-    [self.imageInput addSubview:self.imageInputBack];
-
 	// Send button
     self.buttonSend = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.buttonSend setAutoresizingMask:(UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin)];
     
-    UIImage *sendBack = self.options[AMOptionsImageButton];
-    UIImage *sendBackHighLighted = self.options[AMOptionsImageButtonHighlight];
-    [self.buttonSend setBackgroundImage:sendBack forState:UIControlStateNormal];
-    [self.buttonSend setBackgroundImage:sendBack forState:UIControlStateDisabled];
-    [self.buttonSend setBackgroundImage:sendBackHighLighted forState:UIControlStateHighlighted];
+    if (self.options[AMOptionsImageButton] != [NSNull null]) {
+        UIImage *sendBack = self.options[AMOptionsImageButton];
+        [self.buttonSend setBackgroundImage:sendBack forState:UIControlStateNormal];
+        [self.buttonSend setBackgroundImage:sendBack forState:UIControlStateDisabled];
+    }
+    if (self.options[AMOptionsImageButtonHighlight] != [NSNull null]) {
+        UIImage *sendBackHighLighted = self.options[AMOptionsImageButtonHighlight];
+        [self.buttonSend setBackgroundImage:sendBackHighLighted forState:UIControlStateHighlighted];
+    }
 	[self.buttonSend.titleLabel setFont:self.options[AMOptionsButtonFont]];
 
     NSString *title = NSLocalizedString(@"Send",);
@@ -171,15 +168,6 @@
     [self.buttonSend setTitle:title forState:UIControlStateHighlighted];
     [self.buttonSend setTitle:title forState:UIControlStateDisabled];
     self.buttonSend.titleLabel.font = [UIFont boldSystemFontOfSize:16.0f];
-    
-    UIColor *titleShadow = [UIColor colorWithRed:0.325f green:0.463f blue:0.675f alpha:1.0f];
-    [self.buttonSend setTitleShadowColor:titleShadow forState:UIControlStateNormal];
-    [self.buttonSend setTitleShadowColor:titleShadow forState:UIControlStateHighlighted];
-    self.buttonSend.titleLabel.shadowOffset = CGSizeMake(0.0f, -1.0f);
-
-    [self.buttonSend setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.buttonSend setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
-    [self.buttonSend setTitleColor:[UIColor colorWithWhite:1.0f alpha:0.5f] forState:UIControlStateDisabled];
     
     [self.buttonSend setEnabled:NO];
     [self.buttonSend setFrame:CGRectMake(self.imageInput.frame.size.width - 65.0f, [self.options[AMOptionsButtonOffset] floatValue], 59.0f, 26.0f)];
@@ -193,6 +181,43 @@
     [self.buttonImageChooser addTarget:self action:@selector(clickChooseImage:) forControlEvents:UIControlEventTouchUpInside];
     [self.imageInput addSubview:self.buttonImageChooser];
     
+    
+    // styles which can be customized
+    [self setupChatTextFieldBar:self.imageInput textView:self.textView sendButton:self.buttonSend selectImageButton:self.buttonImageChooser];
+    
+}
+
+-(void)setupChatTextFieldBar:(UIView *)containerView textView:(UITextView *)textView sendButton:(UIButton *)sendButton selectImageButton:(UIButton *)selectImageButton
+{
+    // Input field
+    [self.textView setScrollIndicatorInsets:UIEdgeInsetsMake(10.0f, 0.0f, 10.0f, 8.0f)];
+    [self.textView setContentInset:UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f)];
+    
+    // Input field's background
+    UIImageView * imageInputBack = [[UIImageView alloc] initWithFrame:CGRectMake(self.textView.frame.origin.x - 1.0f,
+                                                                                 0.0f,
+                                                                                 self.textView.frame.size.width + 2.0f,
+                                                                                 self.imageInput.frame.size.height)];
+    [imageInputBack setImage:self.options[AMOptionsImageInput]];
+    [imageInputBack setAutoresizingMask:(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight)];
+    [imageInputBack setBackgroundColor:[UIColor clearColor]];
+    [imageInputBack setUserInteractionEnabled:NO];
+    [self.imageInput addSubview:imageInputBack];
+    
+    // button title shadow
+    UIColor *titleShadow = [UIColor colorWithRed:0.325f green:0.463f blue:0.675f alpha:1.0f];
+    [self.buttonSend setTitleShadowColor:titleShadow forState:UIControlStateNormal];
+    [self.buttonSend setTitleShadowColor:titleShadow forState:UIControlStateHighlighted];
+    self.buttonSend.titleLabel.shadowOffset = CGSizeMake(0.0f, -1.0f);
+    
+    [self.buttonSend setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.buttonSend setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+    [self.buttonSend setTitleColor:[UIColor colorWithWhite:1.0f alpha:0.5f] forState:UIControlStateDisabled];
+    
+
+    
+
+
 }
 
 #pragma mark - TableView Delegate

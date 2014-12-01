@@ -20,5 +20,6 @@
 - (void)setBubbleTableOptions:(NSDictionary *)options;
 - (void)setTableStyle:(AMBubbleTableStyle)style;
 - (void)scrollToBottomAnimated:(BOOL)animated;
+- (void)setupChatTextFieldBar:(UIView *)containerView textView:(UITextView *)textView sendButton:(UIButton *)sendButton selectImageButton:(UIButton *)selectImageButton;
 
 @end
