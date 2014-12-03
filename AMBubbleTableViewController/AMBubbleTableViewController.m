@@ -7,7 +7,6 @@
 //
 
 #import "AMBubbleTableViewController.h"
-#import "AMBubbleTableCell.h"
 
 #define kInputHeight 40.0f
 #define kLineHeight 30.0f
@@ -220,6 +219,11 @@
 
 }
 
+- (void)customizeAMBubbleTableCell:(AMBubbleTableCell *)cell forCellType:(AMBubbleCellType)cellType
+{
+    
+}
+
 #pragma mark - TableView Delegate
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -319,6 +323,8 @@
         }
 	}
 	
+    [self customizeAMBubbleTableCell:cell forCellType:cell.cellType];
+
 	return cell;
 }
 

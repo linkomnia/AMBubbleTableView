@@ -7,6 +7,7 @@
 //
 
 #import "AMBubbleGlobals.h"
+#import "AMBubbleTableCell.h"
 
 @interface AMBubbleTableViewController : UIViewController
 
@@ -21,5 +22,6 @@
 - (void)setTableStyle:(AMBubbleTableStyle)style;
 - (void)scrollToBottomAnimated:(BOOL)animated;
 - (void)setupChatTextFieldBar:(UIView *)containerView textView:(UITextView *)textView sendButton:(UIButton *)sendButton selectImageButton:(UIButton *)selectImageButton;
+- (void)customizeAMBubbleTableCell:(AMBubbleTableCell *)cell forCellType:(AMBubbleCellType)cellType;
 
 @end

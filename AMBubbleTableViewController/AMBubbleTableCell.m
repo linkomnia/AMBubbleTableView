@@ -13,10 +13,6 @@
 @interface AMBubbleTableCell ()
 
 @property (nonatomic, weak)   NSDictionary* options;
-@property (nonatomic, strong) UITextView*	textView;
-@property (nonatomic, strong) UIImageView*	imageBackground;
-@property (nonatomic, strong) UILabel*		labelUsername;
-@property (nonatomic, strong) UIView<AMBubbleAccessory>*		bubbleAccessory;
 
 
 @end
@@ -96,6 +92,8 @@
 	
 	[self.bubbleAccessory setupView:params];
 	
+    _cellType = type;
+    
 	// Right Bubble
 	if (type == AMBubbleCellSent) {
 		
@@ -204,7 +202,9 @@
 - (void)setupBubbleWithType:(AMBubbleCellType)type background:(CGRect)frame textFrame:(CGRect)textFrame msgImageFrame:(CGRect)msgImageFrame andTextParams:(NSDictionary*)textParams
 {
 	[self.imageBackground setFrame:frame];
-	
+    
+    _cellType = type;
+
 	if (type == AMBubbleCellReceived) {
 		[self.imageBackground setImage:self.options[AMOptionsImageIncoming]];
 	} else {
@@ -249,6 +249,10 @@
     self.msgImageView.userInteractionEnabled = YES;
 }
 
+-(UIImageView *)avatarImageView
+{
+    return self.bubbleAccessory.imageAvatar;
+}
 
 
 @end

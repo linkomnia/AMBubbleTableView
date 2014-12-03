@@ -10,4 +10,6 @@
 
 @interface AMBubbleFlatAccessoryView : UIView<AMBubbleAccessory>
 
+@property (nonatomic, strong) UIImageView*	imageAvatar;
+
 @end
