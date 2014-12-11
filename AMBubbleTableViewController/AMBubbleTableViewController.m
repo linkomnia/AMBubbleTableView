@@ -323,7 +323,7 @@
         }
 	}
 	
-    [self customizeAMBubbleTableCell:cell forCellType:cell.cellType];
+    [self customizeAMBubbleTableCell:cell forCellType:cell.cellType atIndexPath:indexPath];
 
 	return cell;
 }
