@@ -40,6 +40,9 @@
 		[self.contentView addSubview:self.bubbleAccessory];
 		[self.textView setUserInteractionEnabled:YES];
 		[self.imageBackground setUserInteractionEnabled:YES];
+        self.errorIcon = [[UIButton alloc]init];
+        [self.errorIcon setImage:[UIImage imageNamed:@"res/images/icon_error"] forState:UIControlStateNormal];
+        self.errorIcon.hidden = YES;
     }
     return self;
 }
@@ -228,6 +231,10 @@
     } else {
         self.msgImageView.image = nil;
     }
+    
+    [self.errorIcon sizeToFit];
+    [self addSubview:self.errorIcon];
+    self.errorIcon.frame = CGRectMake(self.imageBackground.frame.origin.x - self.errorIcon.frame.size.width - 15, self.bubbleAccessory.frame.origin.y + (self.bubbleAccessory.imageAvatar.frame.size.height - self.errorIcon.frame.size.height) / 2, self.errorIcon.frame.size.width, self.errorIcon.frame.size.height);
     
     //[self.imageView setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
     

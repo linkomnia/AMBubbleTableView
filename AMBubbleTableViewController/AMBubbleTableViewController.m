@@ -270,6 +270,11 @@
 			UITapGestureRecognizer *messageImagePressGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleMessageImagePressGesture:)];
             [cell setMessageImageGesture:messageImagePressGesture];
         }
+        
+        if ([self.delegate respondsToSelector:@selector(didTapErrorIconAtIndexPath:)]) {
+            cell.errorIcon.tag = indexPath.row;
+            [cell.errorIcon addTarget:self action:@selector(handleTapErrorIcon:) forControlEvents:UIControlEventTouchUpInside];
+        }
     }
 	
 	// iPad cells are set by default to 320 pixels, this fixes the quirk
@@ -322,10 +327,26 @@
                                       }];
         }
 	}
-	
+    
+    if ([self.dataSource respondsToSelector:@selector(shouldShowErrorIconAtIndexPath:)]) {
+        if ([self.dataSource shouldShowErrorIconAtIndexPath:indexPath]) {
+            cell.errorIcon.hidden = NO;
+        } else {
+            cell.errorIcon.hidden = YES;
+        }
+    }
+    
     [self customizeAMBubbleTableCell:cell forCellType:cell.cellType atIndexPath:indexPath];
 
 	return cell;
+}
+
+- (void)handleTapErrorIcon:(UIButton *)sender
+{
+    NSInteger row = sender.tag;
+    if ([self.delegate respondsToSelector:@selector(didTapErrorIconAtIndexPath:)]) {
+        [self.delegate didTapErrorIconAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
+    }
 }
 
 - (void)handleSwipeGesture:(UISwipeGestureRecognizer *)sender

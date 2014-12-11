@@ -41,6 +41,7 @@ typedef enum {
 - (UIImage*)avatarForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (NSString*)usernameForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UIColor*)usernameColorForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (BOOL)shouldShowErrorIconAtIndexPath:(NSIndexPath *)indexPath;
 @end
 
 @protocol AMBubbleTableDelegate <NSObject>
@@ -50,6 +51,7 @@ typedef enum {
 - (void)swipedCellAtIndexPath:(NSIndexPath *)indexPath withFrame:(CGRect)frame andDirection:(UISwipeGestureRecognizerDirection)direction;
 - (void)longPressedCellAtIndexPath:(NSIndexPath *)indexPath withFrame:(CGRect)frame;
 - (void)imageButtonClick:(id)controller;
+- (void)didTapErrorIconAtIndexPath:(NSIndexPath *)indexPath;
 @end
 
 @protocol AMBubbleAccessory <NSObject>
