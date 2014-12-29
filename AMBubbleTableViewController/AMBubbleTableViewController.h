@@ -16,13 +16,14 @@
 @property (nonatomic, assign) id<AMBubbleTableDataSource> dataSource;
 @property (nonatomic, assign) id<AMBubbleTableDelegate> delegate;
 
+
 - (void)reloadTableScrollingToBottom:(BOOL)scroll;
 - (void)setTableStyle:(AMBubbleTableStyle)style withCustomStyles:(NSDictionary *)customStyles;
 - (void)setBubbleTableOptions:(NSDictionary *)options;
 - (void)setTableStyle:(AMBubbleTableStyle)style;
 - (void)scrollToBottomAnimated:(BOOL)animated;
 - (void)setupChatTextFieldBar:(UIView *)containerView textView:(UITextView *)textView sendButton:(UIButton *)sendButton selectImageButton:(UIButton *)selectImageButton voiceButton:(UIButton *)voiceButton;
-- (void)setupVoiceBar:(UIView *)containerView closeButton:(UIButton *)closeButton recordButton:(UIButton *)recordButton backgroundView:(UIView *)backgroundView;
+- (void)setupVoiceBar:(UIView *)containerView closeButton:(UIButton *)closeButton recordButton:(UIButton *)recordButton backgroundView:(UIView *)backgroundView voiceLength:(CGFloat *)voiceLengthInSecond;
 - (void)customizeAMBubbleTableCell:(AMBubbleTableCell *)cell forCellType:(AMBubbleCellType)cellType atIndexPath:(NSIndexPath *) indexPath;
 
 @end
