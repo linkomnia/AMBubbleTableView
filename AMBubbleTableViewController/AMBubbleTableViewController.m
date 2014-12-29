@@ -16,12 +16,15 @@
 @interface AMBubbleTableViewController () <UITableViewDataSource, UITableViewDelegate, UITextViewDelegate>
 
 @property (strong, nonatomic) NSMutableDictionary*	options;
-@property (nonatomic, strong) UIView*	imageInput;
-@property (nonatomic, strong) UIButton*		buttonSend;
-@property (nonatomic, strong) NSDateFormatter* dateFormatter;
-@property (nonatomic, strong) UITextView*	tempTextView;
-@property (nonatomic, assign) float			previousTextFieldHeight;
-@property (nonatomic, strong) UIButton*     buttonImageChooser;
+@property (nonatomic, strong) UIView*               imageInput;
+@property (nonatomic, strong) UIButton*             buttonSend;
+@property (nonatomic, strong) NSDateFormatter*      dateFormatter;
+@property (nonatomic, strong) UITextView*           tempTextView;
+@property (nonatomic, assign) float                 previousTextFieldHeight;
+@property (nonatomic, strong) UIButton*             buttonImageChooser;
+@property (nonatomic, strong) UIButton*             buttonVoice;
+@property (nonatomic, strong) UIView*               voiceBar;
+@property (nonatomic, strong) UIButton*             voiceRecordButton;
 
 @end
 
@@ -125,8 +128,8 @@
     
     ///// alloc init views
     // text field
-    CGFloat width = self.imageInput.frame.size.width - kButtonWidth - 26.0f - 3;
-    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(6.0f + 26.0f + 3, 3.0f, width, kLineHeight)];
+    CGFloat width = self.imageInput.frame.size.width - kButtonWidth - 60.0f - 3;
+    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(6.0f + 60.0f + 3, 3.0f, width, kLineHeight)];
     [self.textView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [self.textView setScrollsToTop:NO];
     [self.textView setUserInteractionEnabled:YES];
@@ -179,14 +182,44 @@
     self.buttonImageChooser.frame = CGRectMake(6.0f, [self.options[AMOptionsButtonOffset] floatValue], 26.0f, 26.0f);
     [self.buttonImageChooser addTarget:self action:@selector(clickChooseImage:) forControlEvents:UIControlEventTouchUpInside];
     [self.imageInput addSubview:self.buttonImageChooser];
+
+    self.buttonVoice = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.buttonVoice setImage:[UIImage imageNamed:@"voiceIcon"] forState:UIControlStateNormal];
+    self.buttonVoice.frame = CGRectMake(self.buttonImageChooser.frame.origin.x + self.buttonImageChooser.frame.size.width + 3.0f, [self.options[AMOptionsButtonOffset] floatValue], 26.0f, 26.0f);
+    [self.buttonVoice addTarget:self action:@selector(clickVoiceButton:) forControlEvents:UIControlEventTouchUpInside];
+    [self.imageInput addSubview:self.buttonVoice];
+    
     
     
     // styles which can be customized
-    [self setupChatTextFieldBar:self.imageInput textView:self.textView sendButton:self.buttonSend selectImageButton:self.buttonImageChooser];
+    [self setupChatTextFieldBar:self.imageInput textView:self.textView sendButton:self.buttonSend selectImageButton:self.buttonImageChooser voiceButton:self.buttonVoice];
+    
+    // Voice Bar (shown when tap Voice Icon)
+    self.voiceBar = [[UIView alloc]initWithFrame:self.imageInput.bounds];
+    self.voiceBar.backgroundColor = [UIColor colorWithRed:0.24 green:0.59 blue:1 alpha:1];
+    self.voiceBar.hidden = YES;
+    [self.imageInput addSubview:self.voiceBar];
+    
+    UIButton * voiceCloseButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [voiceCloseButton setImage:[UIImage imageNamed:@"closeIcon"] forState:UIControlStateNormal];
+    voiceCloseButton.frame = self.buttonImageChooser.frame;
+    [voiceCloseButton addTarget:self action:@selector(clickVoiceCloseButton:) forControlEvents:UIControlEventTouchUpInside];
+    [self.voiceBar addSubview:voiceCloseButton];
+    
+    self.voiceRecordButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.voiceRecordButton.frame = CGRectMake(voiceCloseButton.frame.origin.x + voiceCloseButton.frame.size.width, 0, self.voiceBar.frame.size.width - voiceCloseButton.frame.origin.x - voiceCloseButton.frame.size.width, self.voiceBar.frame.size.height);
+    [self.voiceRecordButton setTitle:@"Hold to Speak" forState:UIControlStateNormal];
+    [self.voiceRecordButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.voiceRecordButton addTarget:self action:@selector(clickVoiceRecordButton:) forControlEvents:UIControlEventTouchUpInside];
+    [self.voiceBar addSubview:self.voiceRecordButton];
+    
+    // styles which can be customized
+    [self setupVoiceBar:self.voiceBar closeButton:voiceCloseButton recordButton:self.voiceRecordButton];
+    
     
 }
 
--(void)setupChatTextFieldBar:(UIView *)containerView textView:(UITextView *)textView sendButton:(UIButton *)sendButton selectImageButton:(UIButton *)selectImageButton
+-(void)setupChatTextFieldBar:(UIView *)containerView textView:(UITextView *)textView sendButton:(UIButton *)sendButton selectImageButton:(UIButton *)selectImageButton voiceButton:(UIButton *)voiceButton
 {
     // Input field
     [self.textView setScrollIndicatorInsets:UIEdgeInsetsMake(10.0f, 0.0f, 10.0f, 8.0f)];
@@ -212,14 +245,15 @@
     [self.buttonSend setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.buttonSend setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
     [self.buttonSend setTitleColor:[UIColor colorWithWhite:1.0f alpha:0.5f] forState:UIControlStateDisabled];
-    
-
-    
-
 
 }
 
-- (void)customizeAMBubbleTableCell:(AMBubbleTableCell *)cell forCellType:(AMBubbleCellType)cellType
+-(void)setupVoiceBar:(UIView *)containerView closeButton:(UIButton *)closeButton recordButton:(UIButton *)recordButton
+{
+    
+}
+
+- (void)customizeAMBubbleTableCell:(AMBubbleTableCell *)cell forCellType:(AMBubbleCellType)cellType atIndexPath:(NSIndexPath *)indexPath
 {
     
 }
@@ -662,6 +696,18 @@
     if ([self.delegate respondsToSelector:@selector(imageButtonClick:)]) {
         [self.delegate imageButtonClick:self];
     }
+}
+
+- (void)clickVoiceButton:(id)sender {
+    self.voiceBar.hidden = NO;
+}
+
+- (void)clickVoiceCloseButton:(id)sender {
+    self.voiceBar.hidden = YES;
+}
+
+- (void)clickVoiceRecordButton:(id)sender {
+    
 }
 
 @end

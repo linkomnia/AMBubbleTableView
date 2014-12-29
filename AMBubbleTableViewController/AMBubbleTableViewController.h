@@ -21,7 +21,8 @@
 - (void)setBubbleTableOptions:(NSDictionary *)options;
 - (void)setTableStyle:(AMBubbleTableStyle)style;
 - (void)scrollToBottomAnimated:(BOOL)animated;
-- (void)setupChatTextFieldBar:(UIView *)containerView textView:(UITextView *)textView sendButton:(UIButton *)sendButton selectImageButton:(UIButton *)selectImageButton;
+- (void)setupChatTextFieldBar:(UIView *)containerView textView:(UITextView *)textView sendButton:(UIButton *)sendButton selectImageButton:(UIButton *)selectImageButton voiceButton:(UIButton *)voiceButton;
+- (void)setupVoiceBar:(UIView *)containerView closeButton:(UIButton *)closeButton recordButton:(UIButton *)recordButton;
 - (void)customizeAMBubbleTableCell:(AMBubbleTableCell *)cell forCellType:(AMBubbleCellType)cellType atIndexPath:(NSIndexPath *) indexPath;
 
 @end
