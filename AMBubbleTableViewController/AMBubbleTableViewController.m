@@ -213,6 +213,7 @@
     self.voiceRecordButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.voiceRecordButton.frame = CGRectMake(voiceCloseButton.frame.origin.x + voiceCloseButton.frame.size.width, 0, self.voiceBar.frame.size.width - voiceCloseButton.frame.origin.x - voiceCloseButton.frame.size.width, self.voiceBar.frame.size.height);
     [self.voiceRecordButton setTitle:@"Hold to Speak" forState:UIControlStateNormal];
+    [self.voiceRecordButton setTitle:@"Release to Send" forState:UIControlStateHighlighted];
     [self.voiceRecordButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.voiceRecordButton addTarget:self action:@selector(clickVoiceRecordButton:) forControlEvents:UIControlEventTouchUpInside];
     [self.voiceBar addSubview:self.voiceRecordButton];
