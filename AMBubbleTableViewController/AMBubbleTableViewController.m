@@ -779,11 +779,12 @@
     self.voiceProgressView.progress = 0;
 
     if (isRecording) {
-        NSLog(@"record finished");
         // record finished
+        NSLog(@"record finished: %f, path:\n%@", recorder.recordedDuration.floatValue, recorder.recordedFilePath);
+        
     } else {
-        // user cancelled recording
-        NSLog(@"user cancelled recording");
+        // user cancelled recording or time is too short
+        NSLog(@"user cancelled recording or recording too short: %f, path:\n%@", recorder.recordedDuration.floatValue, recorder.recordedFilePath);
     }
 }
 
