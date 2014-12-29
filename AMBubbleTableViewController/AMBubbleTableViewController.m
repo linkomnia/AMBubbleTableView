@@ -200,6 +200,10 @@
     self.voiceBar.hidden = YES;
     [self.imageInput addSubview:self.voiceBar];
     
+    UIView * voiceBarBackgroundView = [[UIView alloc]initWithFrame:self.voiceBar.bounds];
+    voiceBarBackgroundView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self.voiceBar addSubview:voiceBarBackgroundView];
+    
     UIButton * voiceCloseButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [voiceCloseButton setImage:[UIImage imageNamed:@"closeIcon"] forState:UIControlStateNormal];
     voiceCloseButton.frame = self.buttonImageChooser.frame;
@@ -214,7 +218,7 @@
     [self.voiceBar addSubview:self.voiceRecordButton];
     
     // styles which can be customized
-    [self setupVoiceBar:self.voiceBar closeButton:voiceCloseButton recordButton:self.voiceRecordButton];
+    [self setupVoiceBar:self.voiceBar closeButton:voiceCloseButton recordButton:self.voiceRecordButton backgroundView:voiceBarBackgroundView];
     
     
 }
@@ -248,7 +252,7 @@
 
 }
 
--(void)setupVoiceBar:(UIView *)containerView closeButton:(UIButton *)closeButton recordButton:(UIButton *)recordButton
+-(void)setupVoiceBar:(UIView *)containerView closeButton:(UIButton *)closeButton recordButton:(UIButton *)recordButton backgroundView:(UIView *)backgroundView
 {
     
 }
