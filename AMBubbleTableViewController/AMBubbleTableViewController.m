@@ -240,7 +240,7 @@
 
     voiceLengthInSecond = 10.0;
     self.voiceRecorder = [[AnyRecorder alloc]init];
-    self.voiceRecorder.delegate = self;
+    ((AnyRecorder *)self.voiceRecorder).delegate = self;
     self.recordTimer = [[NSTimer alloc]init];
     
     // styles which can be customized

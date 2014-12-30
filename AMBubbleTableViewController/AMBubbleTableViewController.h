@@ -16,7 +16,7 @@
 @property (nonatomic, strong) UITextView*	textView;
 @property (nonatomic, assign) id<AMBubbleTableDataSource> dataSource;
 @property (nonatomic, assign) id<AMBubbleTableDelegate> delegate;
-@property (nonatomic, strong) id<AnyRecorderControl>*          voiceRecorder;
+@property (nonatomic, strong) id<AnyRecorderControl>          voiceRecorder;
 
 
 - (void)reloadTableScrollingToBottom:(BOOL)scroll;
