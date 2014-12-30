@@ -10,7 +10,7 @@
 #import "AMBubbleGlobals.h"
 #import "AMBubbleTableCell.h"
 
-@interface AMBubbleTableViewController : UIViewController
+@interface AMBubbleTableViewController : UIViewController <AnyRecorderDelegate>
 
 @property (nonatomic, strong) UITableView*	tableView;
 @property (nonatomic, strong) UITextView*	textView;
@@ -27,5 +27,10 @@
 - (void)setupChatTextFieldBar:(UIView *)containerView textView:(UITextView *)textView sendButton:(UIButton *)sendButton selectImageButton:(UIButton *)selectImageButton voiceButton:(UIButton *)voiceButton;
 - (void)setupVoiceBar:(UIView *)containerView closeButton:(UIButton *)closeButton recordButton:(UIButton *)recordButton backgroundView:(UIView *)backgroundView voiceLength:(CGFloat *)voiceLengthInSecond;
 - (void)customizeAMBubbleTableCell:(AMBubbleTableCell *)cell forCellType:(AMBubbleCellType)cellType atIndexPath:(NSIndexPath *) indexPath;
+
+-(void)didStartRecording;
+-(void)didFinishRecording;
+-(void)didCancelRecording;
+
 
 @end
