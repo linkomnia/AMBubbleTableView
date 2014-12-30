@@ -7,13 +7,14 @@
 //
 
 #import "AMBubbleTableViewController.h"
+#import "AnyRecorder.h"
 
 #define kInputHeight 40.0f
 #define kLineHeight 30.0f
 #define kButtonWidth 78.0f
 
 
-@interface AMBubbleTableViewController () <UITableViewDataSource, UITableViewDelegate, UITextViewDelegate>
+@interface AMBubbleTableViewController () <UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, AnyRecorderDelegate>
 
 @property (strong, nonatomic) NSMutableDictionary*	options;
 @property (nonatomic, strong) UIView*               imageInput;
@@ -238,6 +239,8 @@
     [self.voiceBar addSubview:self.voiceProgressView];
 
     voiceLengthInSecond = 10.0;
+    self.voiceRecorder = [[AnyRecorder alloc]init];
+    self.voiceRecorder.delegate = self;
     self.recordTimer = [[NSTimer alloc]init];
     
     // styles which can be customized
@@ -736,11 +739,16 @@
 - (void)voiceRecordButtonTouchUpInside:(id)sender {
     isRecording = YES;
     [self stopRecording];
+    if (self.voiceRecorder.recordedTime < 0.2) {
+        [self.voiceRecorder cancelRecording];
+    } else {
+        [self.voiceRecorder finishRecording];
+    }
 }
 
 - (void)voiceRecordButtonTouchUpOutside:(id)sender {
     isRecording = NO;
-    [self stopRecording];
+    [self.voiceRecorder cancelRecording];
 }
 
 - (void)touchDownRecordButton:(id)sender {
@@ -755,22 +763,12 @@
     } else {
         // stop it
         isRecording = YES;
-        [self stopRecording];
+        [self.voiceRecorder finishRecording];
     }
     
 }
 
--(void)startRecording
-{
-    [self recorderDidStartRecording];
-}
-
--(void)stopRecording
-{
-    [self recorderDidStopRecording];
-}
-
--(void)recorderDidStartRecording
+-(void)didStartRecording
 {
     isRecording = YES;
     self.recordTimer = nil;
@@ -778,24 +776,18 @@
     self.recordTimer = [NSTimer scheduledTimerWithTimeInterval:(voiceLengthInSecond / 1000) target:self selector:@selector(updateVoiceProgress:) userInfo:nil repeats:YES];
 }
 
--(void)recorderDidStopRecording
+-(void)didFinishRecording
 {
     [self.recordTimer invalidate];
     self.voiceProgressView.progress = 0;
-
-    if (isRecording) {
-        // record finished
-        NSLog(@"record finished");
-        
-    } else {
-        // user cancelled recording or time is too short
-        NSLog(@"user cancelled recording or recording too short");
-    }
+    NSLog(@"record finished");
 }
 
--(BOOL)isRecording
+-(void)didCancelRecording
 {
-    return isRecording;
+    [self.recordTimer invalidate];
+    self.voiceProgressView.progress = 0;
+    NSLog(@"record cancelled");
 }
 
 @end

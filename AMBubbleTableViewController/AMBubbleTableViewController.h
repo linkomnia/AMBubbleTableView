@@ -6,6 +6,7 @@
 //  Copyright (c) 2013 Andrea Mazzini. All rights reserved.
 //
 
+#import "AnyRecorder.h"
 #import "AMBubbleGlobals.h"
 #import "AMBubbleTableCell.h"
 
@@ -15,6 +16,7 @@
 @property (nonatomic, strong) UITextView*	textView;
 @property (nonatomic, assign) id<AMBubbleTableDataSource> dataSource;
 @property (nonatomic, assign) id<AMBubbleTableDelegate> delegate;
+@property (nonatomic, assign) AnyRecorder*          voiceRecorder;
 
 
 - (void)reloadTableScrollingToBottom:(BOOL)scroll;
@@ -25,14 +27,5 @@
 - (void)setupChatTextFieldBar:(UIView *)containerView textView:(UITextView *)textView sendButton:(UIButton *)sendButton selectImageButton:(UIButton *)selectImageButton voiceButton:(UIButton *)voiceButton;
 - (void)setupVoiceBar:(UIView *)containerView closeButton:(UIButton *)closeButton recordButton:(UIButton *)recordButton backgroundView:(UIView *)backgroundView voiceLength:(CGFloat *)voiceLengthInSecond;
 - (void)customizeAMBubbleTableCell:(AMBubbleTableCell *)cell forCellType:(AMBubbleCellType)cellType atIndexPath:(NSIndexPath *) indexPath;
-
-// for recording
--(void)startRecording;
--(void)stopRecording;
--(BOOL)isRecording;
-
-// add these two methods to the recorder's delegate functions
--(void)recorderDidStartRecording;
--(void)recorderDidStopRecording;
 
 @end
