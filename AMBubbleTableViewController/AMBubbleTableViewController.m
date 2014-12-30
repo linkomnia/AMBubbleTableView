@@ -738,7 +738,6 @@
 
 - (void)voiceRecordButtonTouchUpInside:(id)sender {
     isRecording = YES;
-    [self stopRecording];
     if (self.voiceRecorder.recordedTime < 0.2) {
         [self.voiceRecorder cancelRecording];
     } else {
@@ -752,7 +751,7 @@
 }
 
 - (void)touchDownRecordButton:(id)sender {
-    [self startRecording];
+    [self.voiceRecorder startRecording];
 }
 
 - (void)updateVoiceProgress:(NSTimer *)sender
