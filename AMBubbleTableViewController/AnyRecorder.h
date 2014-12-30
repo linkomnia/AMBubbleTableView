@@ -8,14 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import "AnyRecorderDelegate.h"
+#import "AnyRecorderControl.h"
 
-@interface AnyRecorder : NSObject
+@interface AnyRecorder : NSObject <AnyRecorderControl>
 
 @property (nonatomic, strong) id<AnyRecorderDelegate> delegate;
-
--(float)recordedTime;
--(void)startRecording;
--(void)finishRecording;
--(void)cancelRecording;
 
 @end
