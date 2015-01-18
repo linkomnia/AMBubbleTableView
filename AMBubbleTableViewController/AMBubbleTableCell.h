@@ -17,6 +17,7 @@
 @property (nonatomic, strong) UILabel*		labelUsername;
 @property (nonatomic, strong) AMBubbleFlatAccessoryView*		bubbleAccessory;
 @property (nonatomic, strong) UIButton*     errorIcon;
+@property (nonatomic, strong) UIButton*     voiceButton;
 @property (nonatomic, readonly) AMBubbleCellType cellType;
 
 - (id)initWithOptions:(NSDictionary*)options reuseIdentifier:(NSString *)reuseIdentifier;

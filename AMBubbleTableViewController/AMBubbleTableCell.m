@@ -43,6 +43,8 @@
         self.errorIcon = [[UIButton alloc]init];
         [self.errorIcon setImage:[UIImage imageNamed:@"res/images/icon_error"] forState:UIControlStateNormal];
         self.errorIcon.hidden = YES;
+        self.voiceButton = [[UIButton alloc]init];
+        [self.imageBackground addSubview:self.voiceButton];
     }
     return self;
 }
@@ -59,6 +61,19 @@
 	CGSize sizeText = [params[@"text"] sizeWithFont:textFont
 								  constrainedToSize:CGSizeMake(kMessageTextWidth, CGFLOAT_MAX)
 									  lineBreakMode:NSLineBreakByWordWrapping];
+
+    CGRect voiceFrame = CGRectMake(0, 0, 0, 0);
+    if (params[@"msgVoice"]) {
+        NSString * fakeText = @"0.00s";
+        sizeText = [fakeText sizeWithFont:textFont
+                        constrainedToSize:CGSizeMake(kMessageTextWidth, CGFLOAT_MAX)
+                            lineBreakMode:NSLineBreakByWordWrapping];
+        if (params[@"voiceLength"]) {
+            float voiceLength = [params[@"voiceLength"] floatValue];
+            sizeText = CGSizeMake(sizeText.width + voiceLength * 10, sizeText.height);
+        }
+    }
+
     CGSize sizeImage;
     if (params[@"msgImage"]) {
         UIImage *img = params[@"msgImage"];
@@ -75,6 +90,8 @@
         sizeImage = CGSizeMake(0, 0);
     }
     //NSLog(@"%f, %f", sizeImage.width, sizeImage.height);
+    
+    
 	
 	
 	[self.textView setBackgroundColor:[UIColor clearColor]];
@@ -124,14 +141,20 @@
 				rect.origin.y = 0;
 			}
 		}
+        
+        CGRect textFrame = CGRectMake(12.0f,
+                                      4.0f,
+                                      sizeText.width + 5.0f,
+                                      sizeText.height);
+        if (params[@"msgVoice"]) {
+            voiceFrame = textFrame;
+        }
 		
 		[self setupBubbleWithType:type
 					   background:rect
-						textFrame:CGRectMake(12.0f,
-											 4.0f,
-											 sizeText.width + 5.0f,
-											 sizeText.height)
+						textFrame:textFrame
                     msgImageFrame:CGRectMake(12.0f, 4.0f + sizeText.height, sizeImage.width + 5.0f, sizeImage.height)
+                       voiceFrame:voiceFrame
 						  andTextParams:params];
 	}
 	
@@ -177,10 +200,16 @@
 			}
 		}
 		
+        CGRect textFrame = CGRectMake(22.0f, 4.0 + usernameSize.height, sizeText.width + 5.0f, sizeText.height);
+        if (params[@"msgVoice"]) {
+            voiceFrame = textFrame;
+        }
+
 		[self setupBubbleWithType:type
 					   background:rect
-						textFrame:CGRectMake(22.0f, 4.0 + usernameSize.height, sizeText.width + 5.0f, sizeText.height)
+						textFrame:textFrame
                     msgImageFrame:CGRectMake(22.0f, 4.0 + usernameSize.height + sizeText.height, sizeImage.width + 5.0, sizeImage.height)
+                       voiceFrame:voiceFrame
 						  andTextParams:params];
 	}
 	
@@ -197,12 +226,12 @@
 		[self.imageBackground setFrame:CGRectZero];
 		self.textView.text = params[@"date"];
 	}
-	
+    	
 	[self setNeedsLayout];
 	
 }
 
-- (void)setupBubbleWithType:(AMBubbleCellType)type background:(CGRect)frame textFrame:(CGRect)textFrame msgImageFrame:(CGRect)msgImageFrame andTextParams:(NSDictionary*)textParams
+- (void)setupBubbleWithType:(AMBubbleCellType)type background:(CGRect)frame textFrame:(CGRect)textFrame msgImageFrame:(CGRect)msgImageFrame voiceFrame:(CGRect) voiceFrame andTextParams:(NSDictionary*)textParams
 {
 	[self.imageBackground setFrame:frame];
     
@@ -231,6 +260,10 @@
     } else {
         self.msgImageView.image = nil;
     }
+    
+    [self.voiceButton setFrame:voiceFrame];
+    [self.voiceButton setTitle:@"[VOICE]" forState:UIControlStateNormal];
+    [self.voiceButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     
     [self.errorIcon sizeToFit];
     [self addSubview:self.errorIcon];

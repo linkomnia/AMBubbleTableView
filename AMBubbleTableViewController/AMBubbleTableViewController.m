@@ -309,6 +309,17 @@
     } else {
         msgImage = nil;
     }
+    NSString* msgVoice;
+    if ([self.dataSource respondsToSelector:@selector(msgVoiceForRowAtIndexPath:)]) {
+        msgVoice = [self.dataSource msgVoiceForRowAtIndexPath:indexPath];
+    } else {
+        msgVoice = nil;
+    }
+    float voiceLength = 0;
+    if ([self.dataSource respondsToSelector:@selector(msgVoiceLengthForRowAtIndexPath:)]) {
+        voiceLength = [self.dataSource msgVoiceLengthForRowAtIndexPath:indexPath];
+    }
+    
 	NSDate* date = [self.dataSource timestampForRowAtIndexPath:indexPath];
 	AMBubbleTableCell* cell = [tableView dequeueReusableCellWithIdentifier:cellID];
 	
@@ -342,7 +353,12 @@
             cell.errorIcon.tag = indexPath.row;
             [cell.errorIcon addTarget:self action:@selector(handleTapErrorIcon:) forControlEvents:UIControlEventTouchUpInside];
         }
-    }
+
+        if ([self.delegate respondsToSelector:@selector(didTapVoiceButtonAtIndexPath:)]) {
+            cell.voiceButton.tag = indexPath.row;
+            [cell.voiceButton addTarget:self action:@selector(handleTapVoiceButton:) forControlEvents:UIControlEventTouchUpInside];
+        }
+}
 	
 	// iPad cells are set by default to 320 pixels, this fixes the quirk
 	cell.contentView.frame = CGRectMake(cell.contentView.frame.origin.x,
@@ -381,6 +397,19 @@
 		 @"color": (color ? color: @""),
          @"msgImage": msgImage,
 		 }];
+        } else if (msgVoice && voiceLength) {
+            [cell setupCellWithType:type
+                          withWidth:self.tableView.frame.size.width
+                          andParams:@{
+                                      @"text": text,
+                                      @"date": stringDate,
+                                      @"index": @(indexPath.row),
+                                      @"username": (username ? username : @""),
+                                      @"avatar": (avatar ? avatar: @""),
+                                      @"color": (color ? color: @""),
+                                      @"msgVoice": msgVoice,
+                                      @"voiceLength": @(voiceLength),
+                                      }];
         } else {
             [cell setupCellWithType:type
                           withWidth:self.tableView.frame.size.width
@@ -413,6 +442,14 @@
     NSInteger row = sender.tag;
     if ([self.delegate respondsToSelector:@selector(didTapErrorIconAtIndexPath:)]) {
         [self.delegate didTapErrorIconAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
+    }
+}
+
+- (void)handleTapVoiceButton:(UIButton *)sender
+{
+    NSInteger row = sender.tag;
+    if ([self.delegate respondsToSelector:@selector(didTapVoiceButtonAtIndexPath:)]) {
+        [self.delegate didTapVoiceButtonAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
     }
 }
 

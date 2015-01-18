@@ -38,6 +38,8 @@ typedef enum {
 - (NSDate *)timestampForRowAtIndexPath:(NSIndexPath *)indexPath;
 @optional
 - (UIImage*)msgImageForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (NSString *)msgVoiceForRowAtIndexPath:(NSIndexPath *)indexPath; // base64
+- (float)msgVoiceLengthForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UIImage*)avatarForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (NSString*)usernameForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UIColor*)usernameColorForRowAtIndexPath:(NSIndexPath *)indexPath;
@@ -52,6 +54,7 @@ typedef enum {
 - (void)longPressedCellAtIndexPath:(NSIndexPath *)indexPath withFrame:(CGRect)frame;
 - (void)imageButtonClick:(id)controller;
 - (void)didTapErrorIconAtIndexPath:(NSIndexPath *)indexPath;
+- (void)didTapVoiceButtonAtIndexPath:(NSIndexPath *)indexPath;
 @end
 
 @protocol AMBubbleAccessory <NSObject>
