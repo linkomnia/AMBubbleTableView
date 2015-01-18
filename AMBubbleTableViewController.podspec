@@ -9,7 +9,8 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '5.0'
   s.source_files = 'AMBubbleTableViewController', '*.{h,m,mm,c,cpp}', 'AMBubbleTableViewController/OggSpeex/**/*.{h,m,mm,c,cpp}'
   s.resources    = "AMBubbleTableViewController/Resources/*.png"
-  s.framework    = 'QuartzCore, CoreAudio, AVFoundation, AudioToolbox'
+  s.framework    = 'QuartzCore', 'CoreAudio', 'AVFoundation', 'AudioToolbox'
+  s.library      = 'c++'
   s.requires_arc = true
   s.social_media_url = 'https://twitter.com/theandreamazz'
 end
