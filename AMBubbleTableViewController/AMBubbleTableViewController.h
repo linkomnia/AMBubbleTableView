@@ -8,6 +8,8 @@
 
 #import "AMBubbleGlobals.h"
 #import "AMBubbleTableCell.h"
+#import "RecorderManager.h"
+#import "PlayerManager.h"
 
 @interface AMBubbleTableViewController : UIViewController
 

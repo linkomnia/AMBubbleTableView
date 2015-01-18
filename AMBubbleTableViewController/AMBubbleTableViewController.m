@@ -7,8 +7,6 @@
 //
 
 #import "AMBubbleTableViewController.h"
-#import "RecorderManager.h"
-#import "PlayerManager.h"
 
 #define kInputHeight 40.0f
 #define kLineHeight 30.0f
