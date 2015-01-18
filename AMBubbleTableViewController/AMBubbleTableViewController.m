@@ -7,14 +7,15 @@
 //
 
 #import "AMBubbleTableViewController.h"
-#import "FDSoundActivatedRecorder.h"
+#import "RecorderManager.h"
+#import "PlayerManager.h"
 
 #define kInputHeight 40.0f
 #define kLineHeight 30.0f
 #define kButtonWidth 78.0f
 
 
-@interface AMBubbleTableViewController () <UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, FDSoundActivatedRecorderDelegate>
+@interface AMBubbleTableViewController () <UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, RecordingDelegate, PlayingDelegate>
 
 @property (strong, nonatomic) NSMutableDictionary*	options;
 @property (nonatomic, strong) UIView*               imageInput;
@@ -27,7 +28,7 @@
 @property (nonatomic, strong) UIView*               voiceBar;
 @property (nonatomic, strong) UIButton*             voiceRecordButton;
 @property (nonatomic, strong) UIProgressView*       voiceProgressView;
-@property (nonatomic, strong) FDSoundActivatedRecorder * voiceRecorder;
+@property (nonatomic, strong) RecorderManager*      recorderManager;
 @property (nonatomic) NSTimer*                      recordTimer;
 
 @end
@@ -36,7 +37,7 @@
 
 {
     CGFloat voiceLengthInSecond;
-    BOOL isRecording;
+    BOOL recordingAccepted;
 }
 
 - (void)viewDidLoad
@@ -226,7 +227,7 @@
     [self.voiceRecordButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.voiceBar addSubview:self.voiceRecordButton];
 
-    isRecording = NO;
+    recordingAccepted = NO;
     [self.voiceRecordButton addTarget:self action:@selector(voiceRecordButtonTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
     [self.voiceRecordButton addTarget:self action:@selector(voiceRecordButtonTouchUpOutside:) forControlEvents:UIControlEventTouchUpOutside];
     
@@ -240,8 +241,8 @@
     [self.voiceBar addSubview:self.voiceProgressView];
 
     voiceLengthInSecond = 10.0;
-    self.voiceRecorder = [[FDSoundActivatedRecorder alloc]init];
-    self.voiceRecorder.delegate = self;
+    self.recorderManager = [RecorderManager sharedManager];
+    self.recorderManager.delegate = self;
     
     self.recordTimer = [[NSTimer alloc]init];
     
@@ -739,17 +740,25 @@
 }
 
 - (void)voiceRecordButtonTouchUpInside:(id)sender {
-    isRecording = YES;
-    [self.voiceRecorder stopListeningAndKeepRecordingIfInProgress:YES];
+    [self.recorderManager stopRecording];
+    recordingAccepted = YES;
 }
 
 - (void)voiceRecordButtonTouchUpOutside:(id)sender {
-    isRecording = NO;
-    [self.voiceRecorder stopListeningAndKeepRecordingIfInProgress:YES];
+    [self.recorderManager cancelRecording];
+    recordingAccepted = NO;
 }
 
 - (void)touchDownRecordButton:(id)sender {
-    [self.voiceRecorder startRecording];
+    // clear
+    recordingAccepted = NO;
+    [self.recorderManager cancelRecording];
+    
+    // start recording
+    [self.recorderManager startRecording];
+    self.recordTimer = nil;
+    self.recordTimer = [[NSTimer alloc]initWithFireDate:[[NSDate alloc]initWithTimeIntervalSinceNow:0] interval:0.1 target:self selector:@selector(updateVoiceProgress:) userInfo:nil repeats:YES];
+    self.recordTimer = [NSTimer scheduledTimerWithTimeInterval:(voiceLengthInSecond / 1000) target:self selector:@selector(updateVoiceProgress:) userInfo:nil repeats:YES];
 }
 
 - (void)updateVoiceProgress:(NSTimer *)sender
@@ -759,32 +768,20 @@
         self.voiceProgressView.progress += addUp;
     } else {
         // stop it
-        isRecording = YES;
-        [self.voiceRecorder stopListeningAndKeepRecordingIfInProgress:YES];
+        [self.recorderManager stopRecording];
     }
     
 }
 
--(void)soundActivatedRecorderDidStartRecording:(FDSoundActivatedRecorder *)recorder
-{
-    isRecording = YES;
-    self.recordTimer = nil;
-    self.recordTimer = [[NSTimer alloc]initWithFireDate:[[NSDate alloc]initWithTimeIntervalSinceNow:0] interval:0.1 target:self selector:@selector(updateVoiceProgress:) userInfo:nil repeats:YES];
-    self.recordTimer = [NSTimer scheduledTimerWithTimeInterval:(voiceLengthInSecond / 1000) target:self selector:@selector(updateVoiceProgress:) userInfo:nil repeats:YES];
-}
-
--(void)soundActivatedRecorderDidStopRecording:(FDSoundActivatedRecorder *)recorder andSavedSound:(BOOL)didSave
+-(void)recordingFinishedWithFileName:(NSString *)filePath time:(NSTimeInterval)interval
 {
     [self.recordTimer invalidate];
     self.voiceProgressView.progress = 0;
-
-    if (isRecording) {
-        // record finished
-        NSLog(@"record finished: %f, path:\n%@", recorder.recordedDuration.floatValue, recorder.recordedFilePath);
+    
+    if (recordingAccepted) {
         
     } else {
-        // user cancelled recording or time is too short
-        NSLog(@"user cancelled recording or recording too short: %f, path:\n%@", recorder.recordedDuration.floatValue, recorder.recordedFilePath);
+        
     }
 }
 
