@@ -26,4 +26,8 @@
 - (void)setupVoiceBar:(UIView *)containerView closeButton:(UIButton *)closeButton recordButton:(UIButton *)recordButton backgroundView:(UIView *)backgroundView voiceLength:(CGFloat *)voiceLengthInSecond;
 - (void)customizeAMBubbleTableCell:(AMBubbleTableCell *)cell forCellType:(AMBubbleCellType)cellType atIndexPath:(NSIndexPath *) indexPath;
 
+- (void)didStartRecording;
+- (void)didFinishRecording:(NSString *)filePath duration:(NSTimeInterval)duration;
+- (void)didCancelRecording;
+
 @end

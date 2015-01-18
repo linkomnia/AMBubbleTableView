@@ -759,6 +759,7 @@
     self.recordTimer = nil;
     self.recordTimer = [[NSTimer alloc]initWithFireDate:[[NSDate alloc]initWithTimeIntervalSinceNow:0] interval:0.1 target:self selector:@selector(updateVoiceProgress:) userInfo:nil repeats:YES];
     self.recordTimer = [NSTimer scheduledTimerWithTimeInterval:(voiceLengthInSecond / 1000) target:self selector:@selector(updateVoiceProgress:) userInfo:nil repeats:YES];
+    [self didStartRecording];
 }
 
 - (void)updateVoiceProgress:(NSTimer *)sender
@@ -775,14 +776,49 @@
 
 -(void)recordingFinishedWithFileName:(NSString *)filePath time:(NSTimeInterval)interval
 {
+    if (recordingAccepted) {
+        [self didFinishRecording:filePath duration:interval];
+    } else {
+        [self didCancelRecording];
+    }
+}
+
+-(void)recordingStopped
+{
     [self.recordTimer invalidate];
     self.voiceProgressView.progress = 0;
-    
-    if (recordingAccepted) {
-        
-    } else {
-        
-    }
+}
+
+-(void)recordingTimeout
+{
+    [self.recordTimer invalidate];
+    self.voiceProgressView.progress = 0;
+    recordingAccepted = NO;
+    [self didCancelRecording];
+}
+
+-(void)recordingFailed:(NSString *)failureInfoString
+{
+    [self.recordTimer invalidate];
+    self.voiceProgressView.progress = 0;
+    recordingAccepted = NO;
+    [self didCancelRecording];
+}
+
+-(void)didStartRecording
+{
+    // to be overwritten
+}
+
+-(void)didFinishRecording:(NSString *)filePath duration:(NSTimeInterval)duration
+{
+    // to be overwritten
+    [[PlayerManager sharedManager]playAudioWithFileName:filePath delegate:nil];
+}
+
+-(void)didCancelRecording
+{
+    // to be overwritten
 }
 
 @end

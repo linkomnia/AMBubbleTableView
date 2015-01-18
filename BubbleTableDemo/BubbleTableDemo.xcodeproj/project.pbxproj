@@ -64,6 +64,9 @@
 		4E10226E1A6BB12B009BC4E3 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E10226D1A6BB12B009BC4E3 /* AVFoundation.framework */; };
 		4E1022701A6BB13C009BC4E3 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E10226F1A6BB13C009BC4E3 /* AudioToolbox.framework */; };
 		4E1022721A6BB142009BC4E3 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E1022711A6BB142009BC4E3 /* CoreAudio.framework */; };
+		4E1022771A6BC716009BC4E3 /* voiceIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 4E1022751A6BC716009BC4E3 /* voiceIcon.png */; };
+		4E1022781A6BC716009BC4E3 /* voiceIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4E1022761A6BC716009BC4E3 /* voiceIcon@2x.png */; };
+		4E10227A1A6BC722009BC4E3 /* closeIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4E1022791A6BC722009BC4E3 /* closeIcon@2x.png */; };
 		4EB69A0C1A273E7C0069ECC1 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EB699E61A273E7C0069ECC1 /* AFHTTPRequestOperation.m */; };
 		4EB69A0D1A273E7C0069ECC1 /* AFHTTPRequestOperationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EB699E81A273E7C0069ECC1 /* AFHTTPRequestOperationManager.m */; };
 		4EB69A0E1A273E7C0069ECC1 /* AFHTTPSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EB699EA1A273E7C0069ECC1 /* AFHTTPSessionManager.m */; };
@@ -289,6 +292,9 @@
 		4E10226F1A6BB13C009BC4E3 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		4E1022711A6BB142009BC4E3 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		4E1022741A6BB508009BC4E3 /* CADebugPrintf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CADebugPrintf.h; path = ../CADebugPrintf.h; sourceTree = "<group>"; };
+		4E1022751A6BC716009BC4E3 /* voiceIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = voiceIcon.png; sourceTree = "<group>"; };
+		4E1022761A6BC716009BC4E3 /* voiceIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "voiceIcon@2x.png"; sourceTree = "<group>"; };
+		4E1022791A6BC722009BC4E3 /* closeIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "closeIcon@2x.png"; sourceTree = "<group>"; };
 		4EB699E51A273E7C0069ECC1 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
 		4EB699E61A273E7C0069ECC1 /* AFHTTPRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPRequestOperation.m; sourceTree = "<group>"; };
 		4EB699E71A273E7C0069ECC1 /* AFHTTPRequestOperationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperationManager.h; sourceTree = "<group>"; };
@@ -792,6 +798,9 @@
 		657315DC188EEBA4001F51D3 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4E1022791A6BC722009BC4E3 /* closeIcon@2x.png */,
+				4E1022751A6BC716009BC4E3 /* voiceIcon.png */,
+				4E1022761A6BC716009BC4E3 /* voiceIcon@2x.png */,
 				BCF8678319A525F30086AE03 /* photoIcon@2x.png */,
 				BCF8678419A525F30086AE03 /* picture@2x.png */,
 				BCF8678519A525F30086AE03 /* photoIcon.png */,
@@ -938,9 +947,12 @@
 				6573161A188EEBA4001F51D3 /* imageInputFlat.png in Resources */,
 				65731625188EEBA4001F51D3 /* messageBubbleTyping@2x.png in Resources */,
 				6573160D188EEBA4001F51D3 /* buttonSend@2x.png in Resources */,
+				4E1022771A6BC716009BC4E3 /* voiceIcon.png in Resources */,
+				4E10227A1A6BC722009BC4E3 /* closeIcon@2x.png in Resources */,
 				65731604188EEBA4001F51D3 /* bubbleFlatIncoming.png in Resources */,
 				65731605188EEBA4001F51D3 /* bubbleFlatIncoming@2x.png in Resources */,
 				65731629188EEBD6001F51D3 /* avatar.png in Resources */,
+				4E1022781A6BC716009BC4E3 /* voiceIcon@2x.png in Resources */,
 				65731615188EEBA4001F51D3 /* imageBar@2x.png in Resources */,
 				4E10225F1A6BB101009BC4E3 /* speex_config_types.h.in in Resources */,
 				65731607188EEBA4001F51D3 /* bubbleFlatOutgoing@2x.png in Resources */,
