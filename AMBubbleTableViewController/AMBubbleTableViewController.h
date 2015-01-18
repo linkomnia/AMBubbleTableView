@@ -6,17 +6,15 @@
 //  Copyright (c) 2013 Andrea Mazzini. All rights reserved.
 //
 
-#import "AnyRecorder.h"
 #import "AMBubbleGlobals.h"
 #import "AMBubbleTableCell.h"
 
-@interface AMBubbleTableViewController : UIViewController <AnyRecorderDelegate>
+@interface AMBubbleTableViewController : UIViewController
 
 @property (nonatomic, strong) UITableView*	tableView;
 @property (nonatomic, strong) UITextView*	textView;
 @property (nonatomic, assign) id<AMBubbleTableDataSource> dataSource;
 @property (nonatomic, assign) id<AMBubbleTableDelegate> delegate;
-@property (nonatomic, strong) id<AnyRecorderControl>          voiceRecorder;
 
 
 - (void)reloadTableScrollingToBottom:(BOOL)scroll;
@@ -28,9 +26,8 @@
 - (void)setupVoiceBar:(UIView *)containerView closeButton:(UIButton *)closeButton recordButton:(UIButton *)recordButton backgroundView:(UIView *)backgroundView voiceLength:(CGFloat *)voiceLengthInSecond;
 - (void)customizeAMBubbleTableCell:(AMBubbleTableCell *)cell forCellType:(AMBubbleCellType)cellType atIndexPath:(NSIndexPath *) indexPath;
 
--(void)didStartRecording;
--(void)didFinishRecording;
--(void)didCancelRecording;
-
+- (void)didStartRecording;
+- (void)didFinishRecording:(NSString *)filePath duration:(NSTimeInterval)duration;
+- (void)didCancelRecording;
 
 @end
