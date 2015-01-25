@@ -256,7 +256,6 @@
     [recordSetting setValue:@(kAudioFormatMPEG4AAC) forKey:AVFormatIDKey];
     [recordSetting setValue:@(44100.0) forKey:AVSampleRateKey];
     [recordSetting setValue:@(1) forKey:AVNumberOfChannelsKey];
-    [recordSetting setValue:@(64) forKey:AVEncoderBitRateKey];
 
     NSError * error;
     self.voiceRecorder = [[AVAudioRecorder alloc]initWithURL:outputFileURL settings:recordSetting error:&error];
