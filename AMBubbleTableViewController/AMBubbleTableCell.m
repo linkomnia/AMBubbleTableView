@@ -63,7 +63,7 @@
 									  lineBreakMode:NSLineBreakByWordWrapping];
 
     CGRect voiceFrame = CGRectMake(0, 0, 0, 0);
-    if (params[@"msgVoice"]) {
+    if (params[@"msgVoiceURL"]) {
         NSString * fakeText = @"0.00s";
         sizeText = [fakeText sizeWithFont:textFont
                         constrainedToSize:CGSizeMake(kMessageTextWidth, CGFLOAT_MAX)
@@ -146,7 +146,7 @@
                                       4.0f,
                                       sizeText.width + 5.0f,
                                       sizeText.height);
-        if (params[@"msgVoice"]) {
+        if (params[@"msgVoiceURL"]) {
             voiceFrame = textFrame;
         }
 		
@@ -201,7 +201,7 @@
 		}
 		
         CGRect textFrame = CGRectMake(22.0f, 4.0 + usernameSize.height, sizeText.width + 5.0f, sizeText.height);
-        if (params[@"msgVoice"]) {
+        if (params[@"msgVoiceURL"]) {
             voiceFrame = textFrame;
         }
 

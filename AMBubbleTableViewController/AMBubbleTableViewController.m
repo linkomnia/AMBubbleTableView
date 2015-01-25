@@ -330,11 +330,11 @@
     } else {
         msgImage = nil;
     }
-    NSString* msgVoice;
-    if ([self.dataSource respondsToSelector:@selector(msgVoiceForRowAtIndexPath:)]) {
-        msgVoice = [self.dataSource msgVoiceForRowAtIndexPath:indexPath];
+    NSURL* msgVoiceURL;
+    if ([self.dataSource respondsToSelector:@selector(msgVoiceURLForRowAtIndexPath:)]) {
+        msgVoiceURL = [self.dataSource msgVoiceURLForRowAtIndexPath:indexPath];
     } else {
-        msgVoice = nil;
+        msgVoiceURL = nil;
     }
     float voiceLength = 0;
     if ([self.dataSource respondsToSelector:@selector(msgVoiceLengthForRowAtIndexPath:)]) {
@@ -418,7 +418,7 @@
 		 @"color": (color ? color: @""),
          @"msgImage": msgImage,
 		 }];
-        } else if (msgVoice && voiceLength) {
+        } else if (msgVoiceURL) {
             [cell setupCellWithType:type
                           withWidth:self.tableView.frame.size.width
                           andParams:@{
@@ -428,7 +428,7 @@
                                       @"username": (username ? username : @""),
                                       @"avatar": (avatar ? avatar: @""),
                                       @"color": (color ? color: @""),
-                                      @"msgVoice": msgVoice,
+                                      @"msgVoiceURL": msgVoiceURL,
                                       @"voiceLength": @(voiceLength),
                                       }];
         } else {
