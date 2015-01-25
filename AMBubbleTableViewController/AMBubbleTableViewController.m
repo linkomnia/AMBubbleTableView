@@ -13,7 +13,7 @@
 #define kButtonWidth 78.0f
 
 
-@interface AMBubbleTableViewController () <UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, RecordingDelegate, PlayingDelegate>
+@interface AMBubbleTableViewController () <UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate>
 
 @property (strong, nonatomic) NSMutableDictionary*	options;
 @property (nonatomic, strong) UIView*               imageInput;
@@ -26,7 +26,8 @@
 @property (nonatomic, strong) UIView*               voiceBar;
 @property (nonatomic, strong) UIButton*             voiceRecordButton;
 @property (nonatomic, strong) UIProgressView*       voiceProgressView;
-@property (nonatomic, strong) RecorderManager*      recorderManager;
+@property (nonatomic, strong) AVAudioRecorder*      voiceRecorder;
+@property (nonatomic, strong) AVAudioPlayer*        voicePlayer;
 @property (nonatomic) NSTimer*                      recordTimer;
 
 @end
@@ -239,8 +240,31 @@
     [self.voiceBar addSubview:self.voiceProgressView];
 
     voiceLengthInSecond = 10.0;
-    self.recorderManager = [RecorderManager sharedManager];
-    self.recorderManager.delegate = self;
+    NSArray *pathComponents = @[
+                                [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],
+                                @"recording_temp.m4a"
+                                ];
+    NSURL *outputFileURL = [NSURL fileURLWithPathComponents:pathComponents];
+    
+    // Setup audio session
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    [session setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    
+    // Define the recorder setting
+    NSMutableDictionary *recordSetting = [[NSMutableDictionary alloc] init];
+    
+    [recordSetting setValue:@(kAudioFormatMPEG4AAC) forKey:AVFormatIDKey];
+    [recordSetting setValue:@(44100.0) forKey:AVSampleRateKey];
+    [recordSetting setValue:@(1) forKey:AVNumberOfChannelsKey];
+    [recordSetting setValue:@(64) forKey:AVEncoderBitRateKey];
+
+    NSError * error;
+    self.voiceRecorder = [[AVAudioRecorder alloc]initWithURL:outputFileURL settings:recordSetting error:&error];
+    if (error) {
+        NSLog(@"Cannot init recorder: %@", error.description);
+    }
+    self.voiceRecorder.delegate = self;
+    self.voiceRecorder.meteringEnabled = YES;
     
     self.recordTimer = [[NSTimer alloc]init];
     
@@ -775,22 +799,28 @@
 }
 
 - (void)voiceRecordButtonTouchUpInside:(id)sender {
-    [self.recorderManager stopRecording];
+    [self.voiceRecorder stop];
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
     recordingAccepted = YES;
 }
 
 - (void)voiceRecordButtonTouchUpOutside:(id)sender {
-    [self.recorderManager cancelRecording];
+    [self.voiceRecorder deleteRecording];
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
     recordingAccepted = NO;
 }
 
 - (void)touchDownRecordButton:(id)sender {
     // clear
     recordingAccepted = NO;
-    [self.recorderManager cancelRecording];
+    [self.voiceRecorder deleteRecording];
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
     
     // start recording
-    [self.recorderManager startRecording];
+    [[AVAudioSession sharedInstance] setActive:YES error:nil];
+    [self.voiceRecorder prepareToRecord];
+    [self.voiceRecorder record];
+    
     self.recordTimer = nil;
     self.recordTimer = [[NSTimer alloc]initWithFireDate:[[NSDate alloc]initWithTimeIntervalSinceNow:0] interval:0.1 target:self selector:@selector(updateVoiceProgress:) userInfo:nil repeats:YES];
     self.recordTimer = [NSTimer scheduledTimerWithTimeInterval:(voiceLengthInSecond / 1000) target:self selector:@selector(updateVoiceProgress:) userInfo:nil repeats:YES];
@@ -804,38 +834,33 @@
         self.voiceProgressView.progress += addUp;
     } else {
         // stop it
-        [self.recorderManager stopRecording];
+        [self.voiceRecorder stop];
+        [[AVAudioSession sharedInstance] setActive:NO error:nil];
     }
     
 }
 
--(void)recordingFinishedWithFileName:(NSString *)filePath time:(NSTimeInterval)interval
+-(void)audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag
 {
+    [self.recordTimer invalidate];
+    self.voiceProgressView.progress = 0;
+
     if (recordingAccepted) {
-        [self didFinishRecording:filePath duration:interval];
+        AVAudioPlayer * player = [[AVAudioPlayer alloc] initWithContentsOfURL:recorder.url error:nil];
+        [self didFinishRecording:recorder.url duration:player.duration];
     } else {
         [self didCancelRecording];
     }
 }
 
--(void)recordingStopped
+-(void)audioRecorderEncodeErrorDidOccur:(AVAudioRecorder *)recorder error:(NSError *)error
 {
-    [self.recordTimer invalidate];
-    self.voiceProgressView.progress = 0;
-}
-
--(void)recordingTimeout
-{
-    [self.recordTimer invalidate];
-    self.voiceProgressView.progress = 0;
     recordingAccepted = NO;
     [self didCancelRecording];
 }
 
--(void)recordingFailed:(NSString *)failureInfoString
+-(void)audioRecorderEndInterruption:(AVAudioRecorder *)recorder withOptions:(NSUInteger)flags
 {
-    [self.recordTimer invalidate];
-    self.voiceProgressView.progress = 0;
     recordingAccepted = NO;
     [self didCancelRecording];
 }
@@ -845,10 +870,11 @@
     // to be overwritten
 }
 
--(void)didFinishRecording:(NSString *)filePath duration:(NSTimeInterval)duration
+-(void)didFinishRecording:(NSURL *)fileURL duration:(NSTimeInterval)duration
 {
     // to be overwritten
-    [[PlayerManager sharedManager]playAudioWithFileName:filePath delegate:nil];
+    AVAudioPlayer * player = [[AVAudioPlayer alloc]initWithContentsOfURL:fileURL error:nil];
+    [player play];
 }
 
 -(void)didCancelRecording

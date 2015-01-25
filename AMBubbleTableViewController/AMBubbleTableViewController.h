@@ -8,8 +8,7 @@
 
 #import "AMBubbleGlobals.h"
 #import "AMBubbleTableCell.h"
-#import "RecorderManager.h"
-#import "PlayerManager.h"
+#import <AVFoundation/AVFoundation.h>
 
 @interface AMBubbleTableViewController : UIViewController
 
@@ -29,7 +28,7 @@
 - (void)customizeAMBubbleTableCell:(AMBubbleTableCell *)cell forCellType:(AMBubbleCellType)cellType atIndexPath:(NSIndexPath *) indexPath;
 
 - (void)didStartRecording;
-- (void)didFinishRecording:(NSString *)filePath duration:(NSTimeInterval)duration;
+- (void)didFinishRecording:(NSURL *)fileURL duration:(NSTimeInterval)duration;
 - (void)didCancelRecording;
 
 @end
