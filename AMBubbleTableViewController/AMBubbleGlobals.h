@@ -11,7 +11,8 @@
 typedef enum {
 	AMBubbleTableStyleDefault,
 	AMBubbleTableStyleSquare,
-	AMBubbleTableStyleFlat
+    AMBubbleTableStyleFlat,
+    AMBubbleTableStyleCustom,
 } AMBubbleTableStyle;
 
 typedef enum {
@@ -26,6 +27,8 @@ typedef enum {
 } AMBubbleAccessoryPosition;
 
 #define kMessageTextWidth	(UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) ? 380.0f : 180.0f
+#define kMessageImageWidth	(UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) ? 380.0f : 80.0f
+#define kMessageImageHeight	(UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) ? 380.0f : 80.0f
 
 @protocol AMBubbleTableDataSource <NSObject>
 @required
@@ -34,16 +37,24 @@ typedef enum {
 - (NSString *)textForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (NSDate *)timestampForRowAtIndexPath:(NSIndexPath *)indexPath;
 @optional
+- (UIImage*)msgImageForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (NSURL *)msgVoiceURLForRowAtIndexPath:(NSIndexPath *)indexPath; // NSURL for m4a
+- (float)msgVoiceLengthForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UIImage*)avatarForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (NSString*)usernameForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UIColor*)usernameColorForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (BOOL)shouldShowErrorIconAtIndexPath:(NSIndexPath *)indexPath;
 @end
 
 @protocol AMBubbleTableDelegate <NSObject>
 - (void)didSendText:(NSString*)text;
 @optional
+- (void)pressedMessageImageAtIndexPath:(NSIndexPath *)indexPath;
 - (void)swipedCellAtIndexPath:(NSIndexPath *)indexPath withFrame:(CGRect)frame andDirection:(UISwipeGestureRecognizerDirection)direction;
 - (void)longPressedCellAtIndexPath:(NSIndexPath *)indexPath withFrame:(CGRect)frame;
+- (void)imageButtonClick:(id)controller;
+- (void)didTapErrorIconAtIndexPath:(NSIndexPath *)indexPath;
+- (void)didTapVoiceButtonAtIndexPath:(NSIndexPath *)indexPath;
 @end
 
 @protocol AMBubbleAccessory <NSObject>
@@ -137,6 +148,9 @@ FOUNDATION_EXPORT NSString *const AMOptionsButtonFont;
 
 // Enable Swipe gesture
 FOUNDATION_EXPORT NSString *const AMOptionsBubbleSwipeEnabled;
+
+// Enable Message Press gesture
+FOUNDATION_EXPORT NSString *const AMOptionsMessageImagePressEnabled;
 
 // Enable Long press gesture
 FOUNDATION_EXPORT NSString *const AMOptionsBubblePressEnabled;

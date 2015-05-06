@@ -38,6 +38,7 @@ NSString *const AMOptionsUsernameFont = @"AMOptionsUsernameFont";
 NSString *const AMOptionsButtonFont = @"AMOptionsButtonFont";
 NSString *const AMOptionsBubbleSwipeEnabled = @"AMOptionsBubbleSwipeEnabled";
 NSString *const AMOptionsBubblePressEnabled = @"AMOptionsBubblePressEnabled";
+NSString *const AMOptionsMessageImagePressEnabled = @"AMOptionsMessageImagePressEnabled";
 NSString *const AMOptionsBubbleDetectionType = @"AMOptionsBubbleDetectionType";
 
 @implementation AMBubbleGlobals
@@ -56,7 +57,8 @@ NSString *const AMOptionsBubbleDetectionType = @"AMOptionsBubbleDetectionType";
 	AMOptionsAccessoryMargin: @5,
 	AMOptionsTimestampHeight: @40,
 	AMOptionsBubblePressEnabled: @YES,
-	AMOptionsBubbleSwipeEnabled: @YES
+	AMOptionsBubbleSwipeEnabled: @YES,
+    AMOptionsMessageImagePressEnabled:@YES
 	} mutableCopy];
 
 	// Add default styles

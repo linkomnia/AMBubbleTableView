@@ -13,10 +13,7 @@
 @interface AMBubbleTableCell ()
 
 @property (nonatomic, weak)   NSDictionary* options;
-@property (nonatomic, strong) UITextView*	textView;
-@property (nonatomic, strong) UIImageView*	imageBackground;
-@property (nonatomic, strong) UILabel*		labelUsername;
-@property (nonatomic, strong) UIView<AMBubbleAccessory>*		bubbleAccessory;
+
 
 @end
 
@@ -34,13 +31,20 @@
 		self.imageBackground = [[UIImageView alloc] init];
 		self.labelUsername = [[UILabel alloc] init];
 		self.bubbleAccessory = [[NSClassFromString(options[AMOptionsAccessoryClass]) alloc] init];
+        self.msgImageView = [[UIImageView alloc] init];
 		[self.bubbleAccessory setOptions:options];
 		[self.contentView addSubview:self.imageBackground];
 		[self.imageBackground addSubview:self.textView];
+        [self.imageBackground addSubview:self.msgImageView];
 		[self.imageBackground addSubview:self.labelUsername];
 		[self.contentView addSubview:self.bubbleAccessory];
 		[self.textView setUserInteractionEnabled:YES];
 		[self.imageBackground setUserInteractionEnabled:YES];
+        self.errorIcon = [[UIButton alloc]init];
+        [self.errorIcon setImage:[UIImage imageNamed:@"res/images/icon_error"] forState:UIControlStateNormal];
+        self.errorIcon.hidden = YES;
+        self.voiceButton = [[UIButton alloc]init];
+        [self.imageBackground addSubview:self.voiceButton];
     }
     return self;
 }
@@ -57,6 +61,37 @@
 	CGSize sizeText = [params[@"text"] sizeWithFont:textFont
 								  constrainedToSize:CGSizeMake(kMessageTextWidth, CGFLOAT_MAX)
 									  lineBreakMode:NSLineBreakByWordWrapping];
+
+    CGRect voiceFrame = CGRectMake(0, 0, 0, 0);
+    if (params[@"msgVoiceURL"]) {
+        NSString * fakeText = @"0.00s";
+        sizeText = [fakeText sizeWithFont:textFont
+                        constrainedToSize:CGSizeMake(kMessageTextWidth, CGFLOAT_MAX)
+                            lineBreakMode:NSLineBreakByWordWrapping];
+        if (params[@"voiceLength"]) {
+            float voiceLength = [params[@"voiceLength"] floatValue];
+            sizeText = CGSizeMake(sizeText.width + voiceLength * 10, sizeText.height);
+        }
+    }
+
+    CGSize sizeImage;
+    if (params[@"msgImage"]) {
+        UIImage *img = params[@"msgImage"];
+        CGFloat width = 0, height = 0;
+        if (img.size.width > img.size.height) {
+            width = kMessageImageWidth;
+            height = img.size.height / img.size.width * width;
+        } else {
+            height = kMessageImageHeight;
+            width = img.size.width / img.size.height * height;
+        }
+        sizeImage = CGSizeMake(width, height);
+    } else {
+        sizeImage = CGSizeMake(0, 0);
+    }
+    //NSLog(@"%f, %f", sizeImage.width, sizeImage.height);
+    
+    
 	
 	
 	[self.textView setBackgroundColor:[UIColor clearColor]];
@@ -77,6 +112,8 @@
 	
 	[self.bubbleAccessory setupView:params];
 	
+    _cellType = type;
+    
 	// Right Bubble
 	if (type == AMBubbleCellSent) {
 		
@@ -86,10 +123,10 @@
 												  self.bubbleAccessory.frame.size.height)];
 		
 		
-		CGRect rect = CGRectMake(width - sizeText.width - 34.0f - self.bubbleAccessory.frame.size.width,
+		CGRect rect = CGRectMake(width - MAX(sizeText.width, sizeImage.width) - 34.0f - self.bubbleAccessory.frame.size.width,
 								 textFont.lineHeight - 13.0f,
-								 sizeText.width + 34.0f,
-								 sizeText.height + 12.0f);
+								 MAX(sizeText.width, sizeImage.width) + 34.0f,
+								 sizeText.height + sizeImage.height + 12.0f);
 		
 		if (rect.size.height > self.bubbleAccessory.frame.size.height) {
 			if ([self.options[AMOptionsAccessoryPosition] intValue] == AMBubbleAccessoryDown) {
@@ -104,14 +141,21 @@
 				rect.origin.y = 0;
 			}
 		}
+        
+        CGRect textFrame = CGRectMake(12.0f,
+                                      4.0f,
+                                      sizeText.width + 5.0f,
+                                      sizeText.height);
+        if (params[@"msgVoiceURL"]) {
+            voiceFrame = textFrame;
+        }
 		
 		[self setupBubbleWithType:type
 					   background:rect
-						textFrame:CGRectMake(12.0f,
-											 4.0f,
-											 sizeText.width + 5.0f,
-											 sizeText.height)
-						  andText:params[@"text"]];
+						textFrame:textFrame
+                    msgImageFrame:CGRectMake(12.0f, 4.0f + sizeText.height, sizeImage.width + 5.0f, sizeImage.height)
+                       voiceFrame:voiceFrame
+						  andTextParams:params];
 	}
 	
 	if (type == AMBubbleCellReceived) {
@@ -139,8 +183,8 @@
 		
 		CGRect rect = CGRectMake(0.0f + self.bubbleAccessory.frame.size.width,
 								 textFont.lineHeight - 13.0f,
-								 MAX(sizeText.width, usernameSize.width) + 34.0f, // Accounts for usernames longer than text
-								 sizeText.height + 12.0f + usernameSize.height);
+								 MAX(MAX(sizeText.width, sizeImage.width), usernameSize.width) + 34.0f, // Accounts for usernames longer than text
+								 sizeText.height + sizeImage.height + 12.0f + usernameSize.height);
 		
 		if (rect.size.height > self.bubbleAccessory.frame.size.height) {
 			if ([self.options[AMOptionsAccessoryPosition] intValue] == AMBubbleAccessoryDown) {
@@ -156,10 +200,17 @@
 			}
 		}
 		
+        CGRect textFrame = CGRectMake(22.0f, 4.0 + usernameSize.height, sizeText.width + 5.0f, sizeText.height);
+        if (params[@"msgVoiceURL"]) {
+            voiceFrame = textFrame;
+        }
+
 		[self setupBubbleWithType:type
 					   background:rect
-						textFrame:CGRectMake(22.0f, 4.0 + usernameSize.height, sizeText.width + 5.0f, sizeText.height)
-						  andText:params[@"text"]];
+						textFrame:textFrame
+                    msgImageFrame:CGRectMake(22.0f, 4.0 + usernameSize.height + sizeText.height, sizeImage.width + 5.0, sizeImage.height)
+                       voiceFrame:voiceFrame
+						  andTextParams:params];
 	}
 	
 	if (type == AMBubbleCellTimestamp) {
@@ -175,15 +226,17 @@
 		[self.imageBackground setFrame:CGRectZero];
 		self.textView.text = params[@"date"];
 	}
-	
+    	
 	[self setNeedsLayout];
 	
 }
 
-- (void)setupBubbleWithType:(AMBubbleCellType)type background:(CGRect)frame textFrame:(CGRect)textFrame andText:(NSString*)text
+- (void)setupBubbleWithType:(AMBubbleCellType)type background:(CGRect)frame textFrame:(CGRect)textFrame msgImageFrame:(CGRect)msgImageFrame voiceFrame:(CGRect) voiceFrame andTextParams:(NSDictionary*)textParams
 {
 	[self.imageBackground setFrame:frame];
-	
+    
+    _cellType = type;
+
 	if (type == AMBubbleCellReceived) {
 		[self.imageBackground setImage:self.options[AMOptionsImageIncoming]];
 	} else {
@@ -195,13 +248,51 @@
 	// Dirty fix for ios previous than 7.0
 	if (!SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
 		textFrame.size.width += 12;
+        msgImageFrame.size.width += 12;
 	}
 	[self.textView setFrame:textFrame];
 	[self.textView setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
 	[self.textView setText:nil];
-	[self.textView setText:text];
+	[self.textView setText:textParams[@"text"]];
+    [self.msgImageView setFrame:msgImageFrame];
+    if (textParams[@"msgImage"]) {
+        self.msgImageView.image = textParams[@"msgImage"];
+    } else {
+        self.msgImageView.image = nil;
+    }
+    
+    [self.voiceButton setFrame:voiceFrame];
+    [self.voiceButton setTitle:@"[VOICE]" forState:UIControlStateNormal];
+    [self.voiceButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    
+    [self.errorIcon sizeToFit];
+    [self addSubview:self.errorIcon];
+    self.errorIcon.frame = CGRectMake(self.imageBackground.frame.origin.x - self.errorIcon.frame.size.width - 15, self.bubbleAccessory.frame.origin.y + (self.bubbleAccessory.imageAvatar.frame.size.height - self.errorIcon.frame.size.height) / 2, self.errorIcon.frame.size.width, self.errorIcon.frame.size.height);
+    
+    //[self.imageView setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin];
+    
+    NSLog(@"%f, %f, %f, %f", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
+    NSLog(@"%f, %f, %f, %f", textFrame.origin.x, textFrame.origin.y, textFrame.size.width, textFrame.size.height);
+    NSLog(@"%f, %f, %f, %f", msgImageFrame.origin.x, msgImageFrame.origin.y, msgImageFrame.size.width, msgImageFrame.size.height);
+    
 }
 
+-(void)setMessageImageGesture:(UIGestureRecognizer *)gesture
+{
+    if (!self.msgImageView) {
+        return;
+    }
+    for (UIGestureRecognizer * exsiting in self.msgImageView.gestureRecognizers) {
+        [self.msgImageView removeGestureRecognizer:exsiting];
+    }
+    [self.msgImageView addGestureRecognizer:gesture];
+    self.msgImageView.userInteractionEnabled = YES;
+}
+
+-(UIImageView *)avatarImageView
+{
+    return self.bubbleAccessory.imageAvatar;
+}
 
 
 @end

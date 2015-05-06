@@ -7,26 +7,37 @@
 //
 
 #import "AMBubbleTableViewController.h"
-#import "AMBubbleTableCell.h"
 
 #define kInputHeight 40.0f
 #define kLineHeight 30.0f
 #define kButtonWidth 78.0f
 
 
-@interface AMBubbleTableViewController () <UITableViewDataSource, UITableViewDelegate, UITextViewDelegate>
+@interface AMBubbleTableViewController () <UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate>
 
 @property (strong, nonatomic) NSMutableDictionary*	options;
-@property (nonatomic, strong) UIImageView*	imageInput;
-@property (nonatomic, strong) UIImageView*	imageInputBack;
-@property (nonatomic, strong) UIButton*		buttonSend;
-@property (nonatomic, strong) NSDateFormatter* dateFormatter;
-@property (nonatomic, strong) UITextView*	tempTextView;
-@property (nonatomic, assign) float			previousTextFieldHeight;
+@property (nonatomic, strong) UIView*               imageInput;
+@property (nonatomic, strong) UIButton*             buttonSend;
+@property (nonatomic, strong) NSDateFormatter*      dateFormatter;
+@property (nonatomic, strong) UITextView*           tempTextView;
+@property (nonatomic, assign) float                 previousTextFieldHeight;
+@property (nonatomic, strong) UIButton*             buttonImageChooser;
+@property (nonatomic, strong) UIButton*             buttonVoice;
+@property (nonatomic, strong) UIView*               voiceBar;
+@property (nonatomic, strong) UIButton*             voiceRecordButton;
+@property (nonatomic, strong) UIProgressView*       voiceProgressView;
+@property (nonatomic, strong) AVAudioRecorder*      voiceRecorder;
+@property (nonatomic, strong) AVAudioPlayer*        voicePlayer;
+@property (nonatomic) NSTimer*                      recordTimer;
 
 @end
 
 @implementation AMBubbleTableViewController
+
+{
+    CGFloat voiceLengthInSecond;
+    BOOL recordingAccepted;
+}
 
 - (void)viewDidLoad
 {
@@ -49,19 +60,25 @@
 
 - (void)setTableStyle:(AMBubbleTableStyle)style
 {
-	switch (style) {
-		case AMBubbleTableStyleDefault:
-			[self.options addEntriesFromDictionary:[AMBubbleGlobals defaultStyleDefault]];
-			break;
-		case AMBubbleTableStyleSquare:
-			[self.options addEntriesFromDictionary:[AMBubbleGlobals defaultStyleSquare]];
-			break;
-		case AMBubbleTableStyleFlat:
-			[self.options addEntriesFromDictionary:[AMBubbleGlobals defaultStyleFlat]];
-			break;
-		default:
-			break;
-	}
+    switch (style) {
+        case AMBubbleTableStyleDefault:
+            [self.options addEntriesFromDictionary:[AMBubbleGlobals defaultStyleDefault]];
+            break;
+        case AMBubbleTableStyleSquare:
+            [self.options addEntriesFromDictionary:[AMBubbleGlobals defaultStyleSquare]];
+            break;
+        case AMBubbleTableStyleFlat:
+            [self.options addEntriesFromDictionary:[AMBubbleGlobals defaultStyleFlat]];
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)setTableStyle:(AMBubbleTableStyle)style withCustomStyles:(NSDictionary *)customStyles
+{
+    [self setTableStyle:style];
+    [self.options addEntriesFromDictionary:customStyles];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -104,20 +121,25 @@
 	
     // Input background
     CGRect inputFrame = CGRectMake(0.0f, self.view.frame.size.height - kInputHeight, self.view.frame.size.width, kInputHeight);
-	self.imageInput = [[UIImageView alloc] initWithImage:self.options[AMOptionsImageBar]];
+    if (self.options[AMOptionsImageBar] != [NSNull null]) {
+        self.imageInput = [[UIImageView alloc] init];
+        ((UIImageView *)self.imageInput).image = self.options[AMOptionsImageBar];
+    } else {
+        self.imageInput = [[UIView alloc]init];
+        self.imageInput.backgroundColor = [UIColor whiteColor];
+    }
 	[self.imageInput setFrame:inputFrame];
 	[self.imageInput setAutoresizingMask:(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin)];
 	[self.imageInput setUserInteractionEnabled:YES];
 	
 	[self.view addSubview:self.imageInput];
-	
-	// Input field
-	CGFloat width = self.imageInput.frame.size.width - kButtonWidth;
     
-    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(6.0f, 3.0f, width, kLineHeight)];
+    
+    ///// alloc init views
+    // text field
+    CGFloat width = self.imageInput.frame.size.width - kButtonWidth - 60.0f - 3;
+    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(6.0f + 60.0f + 3, 3.0f, width, kLineHeight)];
     [self.textView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-    [self.textView setScrollIndicatorInsets:UIEdgeInsetsMake(10.0f, 0.0f, 10.0f, 8.0f)];
-    [self.textView setContentInset:UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f)];
     [self.textView setScrollsToTop:NO];
     [self.textView setUserInteractionEnabled:YES];
     [self.textView setFont:self.options[AMOptionsTextFieldFont]];
@@ -126,10 +148,10 @@
     [self.textView setKeyboardAppearance:UIKeyboardAppearanceDefault];
     [self.textView setKeyboardType:UIKeyboardTypeDefault];
     [self.textView setReturnKeyType:UIReturnKeyDefault];
-	
-	[self.textView setDelegate:self];
+    [self.textView setDelegate:self];
     [self.imageInput addSubview:self.textView];
-	
+    
+		
 	// This text view is used to get the content size
 	self.tempTextView = [[UITextView alloc] init];
     self.tempTextView.font = self.textView.font;
@@ -137,26 +159,19 @@
     CGSize size = [self.tempTextView sizeThatFits:CGSizeMake(self.textView.frame.size.width, FLT_MAX)];
     self.previousTextFieldHeight = size.height;
     
-	// Input field's background
-    self.imageInputBack = [[UIImageView alloc] initWithFrame:CGRectMake(self.textView.frame.origin.x - 1.0f,
-																		0.0f,
-																		self.textView.frame.size.width + 2.0f,
-																		self.imageInput.frame.size.height)];
-    [self.imageInputBack setImage:self.options[AMOptionsImageInput]];
-    [self.imageInputBack setAutoresizingMask:(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight)];
-    [self.imageInputBack setBackgroundColor:[UIColor clearColor]];
-	[self.imageInputBack setUserInteractionEnabled:NO];
-    [self.imageInput addSubview:self.imageInputBack];
-
 	// Send button
     self.buttonSend = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.buttonSend setAutoresizingMask:(UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin)];
     
-    UIImage *sendBack = self.options[AMOptionsImageButton];
-    UIImage *sendBackHighLighted = self.options[AMOptionsImageButtonHighlight];
-    [self.buttonSend setBackgroundImage:sendBack forState:UIControlStateNormal];
-    [self.buttonSend setBackgroundImage:sendBack forState:UIControlStateDisabled];
-    [self.buttonSend setBackgroundImage:sendBackHighLighted forState:UIControlStateHighlighted];
+    if (self.options[AMOptionsImageButton] != [NSNull null]) {
+        UIImage *sendBack = self.options[AMOptionsImageButton];
+        [self.buttonSend setBackgroundImage:sendBack forState:UIControlStateNormal];
+        [self.buttonSend setBackgroundImage:sendBack forState:UIControlStateDisabled];
+    }
+    if (self.options[AMOptionsImageButtonHighlight] != [NSNull null]) {
+        UIImage *sendBackHighLighted = self.options[AMOptionsImageButtonHighlight];
+        [self.buttonSend setBackgroundImage:sendBackHighLighted forState:UIControlStateHighlighted];
+    }
 	[self.buttonSend.titleLabel setFont:self.options[AMOptionsButtonFont]];
 
     NSString *title = NSLocalizedString(@"Send",);
@@ -165,6 +180,117 @@
     [self.buttonSend setTitle:title forState:UIControlStateDisabled];
     self.buttonSend.titleLabel.font = [UIFont boldSystemFontOfSize:16.0f];
     
+    [self.buttonSend setEnabled:NO];
+    [self.buttonSend setFrame:CGRectMake(self.imageInput.frame.size.width - 65.0f, [self.options[AMOptionsButtonOffset] floatValue], 59.0f, 26.0f)];
+    [self.buttonSend addTarget:self	action:@selector(sendPressed:) forControlEvents:UIControlEventTouchUpInside];
+	
+    [self.imageInput addSubview:self.buttonSend];
+    
+    self.buttonImageChooser = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.buttonImageChooser setImage:[UIImage imageNamed:@"photoIcon"] forState:UIControlStateNormal];
+    self.buttonImageChooser.frame = CGRectMake(6.0f, [self.options[AMOptionsButtonOffset] floatValue], 26.0f, 26.0f);
+    [self.buttonImageChooser addTarget:self action:@selector(clickChooseImage:) forControlEvents:UIControlEventTouchUpInside];
+    [self.imageInput addSubview:self.buttonImageChooser];
+
+    self.buttonVoice = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.buttonVoice setImage:[UIImage imageNamed:@"voiceIcon"] forState:UIControlStateNormal];
+    self.buttonVoice.frame = CGRectMake(self.buttonImageChooser.frame.origin.x + self.buttonImageChooser.frame.size.width + 3.0f, [self.options[AMOptionsButtonOffset] floatValue], 26.0f, 26.0f);
+    [self.buttonVoice addTarget:self action:@selector(clickVoiceButton:) forControlEvents:UIControlEventTouchUpInside];
+    [self.imageInput addSubview:self.buttonVoice];
+    
+    
+    
+    // styles which can be customized
+    [self setupChatTextFieldBar:self.imageInput textView:self.textView sendButton:self.buttonSend selectImageButton:self.buttonImageChooser voiceButton:self.buttonVoice];
+    
+    // Voice Bar (shown when tap Voice Icon)
+    self.voiceBar = [[UIView alloc]initWithFrame:self.imageInput.bounds];
+    self.voiceBar.backgroundColor = [UIColor colorWithRed:0.24 green:0.59 blue:1 alpha:1];
+    self.voiceBar.hidden = YES;
+    [self.imageInput addSubview:self.voiceBar];
+    
+    UIView * voiceBarBackgroundView = [[UIView alloc]initWithFrame:self.voiceBar.bounds];
+    voiceBarBackgroundView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self.voiceBar addSubview:voiceBarBackgroundView];
+    
+    UIButton * voiceCloseButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [voiceCloseButton setImage:[UIImage imageNamed:@"closeIcon"] forState:UIControlStateNormal];
+    voiceCloseButton.frame = self.buttonImageChooser.frame;
+    [voiceCloseButton addTarget:self action:@selector(clickVoiceCloseButton:) forControlEvents:UIControlEventTouchUpInside];
+    [self.voiceBar addSubview:voiceCloseButton];
+    
+    self.voiceRecordButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.voiceRecordButton.frame = CGRectMake(voiceCloseButton.frame.origin.x + voiceCloseButton.frame.size.width, 0, self.voiceBar.frame.size.width - voiceCloseButton.frame.origin.x - voiceCloseButton.frame.size.width, self.voiceBar.frame.size.height);
+    [self.voiceRecordButton setTitle:@"Hold to Speak" forState:UIControlStateNormal];
+    [self.voiceRecordButton setTitle:@"Release to Send" forState:UIControlStateHighlighted];
+    [self.voiceRecordButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.voiceBar addSubview:self.voiceRecordButton];
+
+    recordingAccepted = NO;
+    [self.voiceRecordButton addTarget:self action:@selector(voiceRecordButtonTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
+    [self.voiceRecordButton addTarget:self action:@selector(voiceRecordButtonTouchUpOutside:) forControlEvents:UIControlEventTouchUpOutside];
+    
+    [self.voiceRecordButton addTarget:self action:@selector(touchDownRecordButton:) forControlEvents:UIControlEventTouchDown];
+    
+    self.voiceProgressView = [[UIProgressView alloc]initWithProgressViewStyle:UIProgressViewStyleBar];
+    [self.voiceProgressView sizeToFit];
+    self.voiceProgressView.frame = CGRectMake(0, 0, self.voiceBar.frame.size.width, self.voiceProgressView.frame.size.height);
+    self.voiceProgressView.progressTintColor = [UIColor whiteColor];
+    self.voiceProgressView.trackTintColor = [UIColor clearColor];
+    [self.voiceBar addSubview:self.voiceProgressView];
+
+    voiceLengthInSecond = 10.0;
+    NSArray *pathComponents = @[
+                                [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],
+                                @"recording_temp.m4a"
+                                ];
+    NSURL *outputFileURL = [NSURL fileURLWithPathComponents:pathComponents];
+    
+    // Setup audio session
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    [session setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    
+    // Define the recorder setting
+    NSMutableDictionary *recordSetting = [[NSMutableDictionary alloc] init];
+    
+    [recordSetting setValue:@(kAudioFormatMPEG4AAC) forKey:AVFormatIDKey];
+    [recordSetting setValue:@(44100.0) forKey:AVSampleRateKey];
+    [recordSetting setValue:@(1) forKey:AVNumberOfChannelsKey];
+
+    NSError * error;
+    self.voiceRecorder = [[AVAudioRecorder alloc]initWithURL:outputFileURL settings:recordSetting error:&error];
+    if (error) {
+        NSLog(@"Cannot init recorder: %@", error.description);
+    }
+    self.voiceRecorder.delegate = self;
+    self.voiceRecorder.meteringEnabled = YES;
+    
+    self.recordTimer = [[NSTimer alloc]init];
+    
+    // styles which can be customized
+    [self setupVoiceBar:self.voiceBar closeButton:voiceCloseButton recordButton:self.voiceRecordButton backgroundView:voiceBarBackgroundView voiceLength:&(voiceLengthInSecond)];
+    
+    
+}
+
+-(void)setupChatTextFieldBar:(UIView *)containerView textView:(UITextView *)textView sendButton:(UIButton *)sendButton selectImageButton:(UIButton *)selectImageButton voiceButton:(UIButton *)voiceButton
+{
+    // Input field
+    [self.textView setScrollIndicatorInsets:UIEdgeInsetsMake(10.0f, 0.0f, 10.0f, 8.0f)];
+    [self.textView setContentInset:UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f)];
+    
+    // Input field's background
+    UIImageView * imageInputBack = [[UIImageView alloc] initWithFrame:CGRectMake(self.textView.frame.origin.x - 1.0f,
+                                                                                 0.0f,
+                                                                                 self.textView.frame.size.width + 2.0f,
+                                                                                 self.imageInput.frame.size.height)];
+    [imageInputBack setImage:self.options[AMOptionsImageInput]];
+    [imageInputBack setAutoresizingMask:(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight)];
+    [imageInputBack setBackgroundColor:[UIColor clearColor]];
+    [imageInputBack setUserInteractionEnabled:NO];
+    [self.imageInput addSubview:imageInputBack];
+    
+    // button title shadow
     UIColor *titleShadow = [UIColor colorWithRed:0.325f green:0.463f blue:0.675f alpha:1.0f];
     [self.buttonSend setTitleShadowColor:titleShadow forState:UIControlStateNormal];
     [self.buttonSend setTitleShadowColor:titleShadow forState:UIControlStateHighlighted];
@@ -173,13 +299,17 @@
     [self.buttonSend setTitleColor:self.options[AMOptionsButtonTextColor] forState:UIControlStateNormal];
     [self.buttonSend setTitleColor:self.options[AMOptionsButtonHighlightedTextColor] forState:UIControlStateHighlighted];
     [self.buttonSend setTitleColor:self.options[AMOptionsButtonDisabledTextColor] forState:UIControlStateDisabled];
-    [self.buttonSend setTitleColor:[UIColor colorWithWhite:1.0f alpha:0.5f] forState:UIControlStateDisabled];
+
+}
+
+-(void)setupVoiceBar:(UIView *)containerView closeButton:(UIButton *)closeButton recordButton:(UIButton *)recordButton backgroundView:(UIView *)backgroundView voiceLength:(CGFloat *)voiceLengthInSecond
+{
     
-    [self.buttonSend setEnabled:NO];
-    [self.buttonSend setFrame:CGRectMake(self.imageInput.frame.size.width - 65.0f, [self.options[AMOptionsButtonOffset] floatValue], 59.0f, 26.0f)];
-    [self.buttonSend addTarget:self	action:@selector(sendPressed:) forControlEvents:UIControlEventTouchUpInside];
-	
-    [self.imageInput addSubview:self.buttonSend];
+}
+
+- (void)customizeAMBubbleTableCell:(AMBubbleTableCell *)cell forCellType:(AMBubbleCellType)cellType atIndexPath:(NSIndexPath *)indexPath
+{
+    
 }
 
 #pragma mark - TableView Delegate
@@ -194,6 +324,23 @@
 	AMBubbleCellType type = [self.dataSource cellTypeForRowAtIndexPath:indexPath];
 	NSString* cellID = [NSString stringWithFormat:@"cell_%d", type];
 	NSString* text = [self.dataSource textForRowAtIndexPath:indexPath];
+    UIImage* msgImage;
+    if ([self.dataSource respondsToSelector:@selector(msgImageForRowAtIndexPath:)]) {
+        msgImage = [self.dataSource msgImageForRowAtIndexPath:indexPath];
+    } else {
+        msgImage = nil;
+    }
+    NSURL* msgVoiceURL;
+    if ([self.dataSource respondsToSelector:@selector(msgVoiceURLForRowAtIndexPath:)]) {
+        msgVoiceURL = [self.dataSource msgVoiceURLForRowAtIndexPath:indexPath];
+    } else {
+        msgVoiceURL = nil;
+    }
+    float voiceLength = 0;
+    if ([self.dataSource respondsToSelector:@selector(msgVoiceLengthForRowAtIndexPath:)]) {
+        voiceLength = [self.dataSource msgVoiceLengthForRowAtIndexPath:indexPath];
+    }
+    
 	NSDate* date = [self.dataSource timestampForRowAtIndexPath:indexPath];
 	AMBubbleTableCell* cell = [tableView dequeueReusableCellWithIdentifier:cellID];
 	
@@ -218,11 +365,21 @@
 			swipeGesture.direction = UISwipeGestureRecognizerDirectionLeft|UISwipeGestureRecognizerDirectionRight;
 			[cell addGestureRecognizer:swipeGesture];
 		}
-		if ([self.options[AMOptionsBubblePressEnabled] boolValue]) {
-			UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressGesture:)];
-			[cell addGestureRecognizer:longPressGesture];
-		}
-	}
+		if ([self.options[AMOptionsMessageImagePressEnabled] boolValue]) {
+			UITapGestureRecognizer *messageImagePressGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleMessageImagePressGesture:)];
+            [cell setMessageImageGesture:messageImagePressGesture];
+        }
+        
+        if ([self.delegate respondsToSelector:@selector(didTapErrorIconAtIndexPath:)]) {
+            cell.errorIcon.tag = indexPath.row;
+            [cell.errorIcon addTarget:self action:@selector(handleTapErrorIcon:) forControlEvents:UIControlEventTouchUpInside];
+        }
+
+        if ([self.delegate respondsToSelector:@selector(didTapVoiceButtonAtIndexPath:)]) {
+            cell.voiceButton.tag = indexPath.row;
+            [cell.voiceButton addTarget:self action:@selector(handleTapVoiceButton:) forControlEvents:UIControlEventTouchUpInside];
+        }
+}
 	
 	// iPad cells are set by default to 320 pixels, this fixes the quirk
 	cell.contentView.frame = CGRectMake(cell.contentView.frame.origin.x,
@@ -232,6 +389,7 @@
 	
 	// Used by the gesture recognizer
 	cell.tag = indexPath.row;
+    cell.msgImageView.tag = indexPath.row;
 	
 	NSString* stringDate;
 	if (type == AMBubbleCellTimestamp) {
@@ -248,6 +406,7 @@
 			username = [self.dataSource usernameForRowAtIndexPath:indexPath];
 		}
 		stringDate = [self.dateFormatter stringFromDate:date];
+        if (msgImage) {
 		[cell setupCellWithType:type
 					  withWidth:self.tableView.frame.size.width
 					  andParams:@{
@@ -256,11 +415,63 @@
 		 @"index": @(indexPath.row),
 		 @"username": (username ? username : @""),
 		 @"avatar": (avatar ? avatar: @""),
-		 @"color": (color ? color: @"")
+		 @"color": (color ? color: @""),
+         @"msgImage": msgImage,
 		 }];
+        } else if (msgVoiceURL) {
+            [cell setupCellWithType:type
+                          withWidth:self.tableView.frame.size.width
+                          andParams:@{
+                                      @"text": text,
+                                      @"date": stringDate,
+                                      @"index": @(indexPath.row),
+                                      @"username": (username ? username : @""),
+                                      @"avatar": (avatar ? avatar: @""),
+                                      @"color": (color ? color: @""),
+                                      @"msgVoiceURL": msgVoiceURL,
+                                      @"voiceLength": @(voiceLength),
+                                      }];
+        } else {
+            [cell setupCellWithType:type
+                          withWidth:self.tableView.frame.size.width
+                          andParams:@{
+                                      @"text": text,
+                                      @"date": stringDate,
+                                      @"index": @(indexPath.row),
+                                      @"username": (username ? username : @""),
+                                      @"avatar": (avatar ? avatar: @""),
+                                      @"color": (color ? color: @""),
+                                      }];
+        }
 	}
-	
+    
+    if ([self.dataSource respondsToSelector:@selector(shouldShowErrorIconAtIndexPath:)]) {
+        if ([self.dataSource shouldShowErrorIconAtIndexPath:indexPath]) {
+            cell.errorIcon.hidden = NO;
+        } else {
+            cell.errorIcon.hidden = YES;
+        }
+    }
+    
+    [self customizeAMBubbleTableCell:cell forCellType:cell.cellType atIndexPath:indexPath];
+
 	return cell;
+}
+
+- (void)handleTapErrorIcon:(UIButton *)sender
+{
+    NSInteger row = sender.tag;
+    if ([self.delegate respondsToSelector:@selector(didTapErrorIconAtIndexPath:)]) {
+        [self.delegate didTapErrorIconAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
+    }
+}
+
+- (void)handleTapVoiceButton:(UIButton *)sender
+{
+    NSInteger row = sender.tag;
+    if ([self.delegate respondsToSelector:@selector(didTapVoiceButtonAtIndexPath:)]) {
+        [self.delegate didTapVoiceButtonAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
+    }
 }
 
 - (void)handleSwipeGesture:(UISwipeGestureRecognizer *)sender
@@ -272,11 +483,18 @@
 
 - (void)handleLongPressGesture:(UILongPressGestureRecognizer *)sender
 {
-	if ([self.delegate respondsToSelector:@selector(longPressedCellAtIndexPath:withFrame:)]) {
-		if (sender.state == UIGestureRecognizerStateBegan) {
-			[self.delegate longPressedCellAtIndexPath:[NSIndexPath indexPathForRow:sender.view.tag inSection:0] withFrame:sender.view.frame];
-		}
-	}
+    if ([self.delegate respondsToSelector:@selector(longPressedCellAtIndexPath:withFrame:)]) {
+        if (sender.state == UIGestureRecognizerStateBegan) {
+            [self.delegate longPressedCellAtIndexPath:[NSIndexPath indexPathForRow:sender.view.tag inSection:0] withFrame:sender.view.frame];
+        }
+    }
+}
+
+- (void)handleMessageImagePressGesture:(UITapGestureRecognizer *)sender
+{
+    if ([self.delegate respondsToSelector:@selector(pressedMessageImageAtIndexPath:)]) {
+        [self.delegate pressedMessageImageAtIndexPath:[NSIndexPath indexPathForRow:sender.view.tag inSection:0]];
+    }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -292,6 +510,25 @@
 	if (type == AMBubbleCellTimestamp) {
 		return [self.options[AMOptionsTimestampHeight] floatValue];
 	}
+    
+    CGSize sizeImage = CGSizeMake(0, 0);
+    if ([self.dataSource respondsToSelector:@selector(msgImageForRowAtIndexPath:)]) {
+        UIImage *img = [self.dataSource msgImageForRowAtIndexPath:indexPath];
+        if (img) {
+            CGFloat width = 0, height = 0;
+            if (img.size.width > img.size.height) {
+                width = kMessageImageWidth;
+                height = img.size.height / img.size.width * width;
+            } else {
+                height = kMessageImageHeight;
+                width = img.size.width / img.size.height * height;
+            }
+            sizeImage = CGSizeMake(width, height);
+        }
+    } else {
+        sizeImage = CGSizeMake(0, 0);
+    }
+    
     
     // Set MessageCell height.
 	CGSize size;
@@ -332,7 +569,7 @@
 	}
 	
 	// Account for either the bubble or accessory size
-    return MAX(size.height + 17.0f + usernameSize.height,
+    return MAX(sizeImage.height + size.height + 17.0f + usernameSize.height,
 			   [self.options[AMOptionsAccessorySize] floatValue] + [self.options[AMOptionsAccessoryMargin] floatValue]);
 }
 
@@ -544,6 +781,104 @@
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
 	[self.tableView reloadData];
+}
+
+- (void)clickChooseImage:(id)sender {
+    if ([self.delegate respondsToSelector:@selector(imageButtonClick:)]) {
+        [self.delegate imageButtonClick:self];
+    }
+}
+
+- (void)clickVoiceButton:(id)sender {
+    self.voiceBar.hidden = NO;
+}
+
+- (void)clickVoiceCloseButton:(id)sender {
+    self.voiceBar.hidden = YES;
+}
+
+- (void)voiceRecordButtonTouchUpInside:(id)sender {
+    [self.voiceRecorder stop];
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
+    recordingAccepted = YES;
+}
+
+- (void)voiceRecordButtonTouchUpOutside:(id)sender {
+    [self.voiceRecorder deleteRecording];
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
+    recordingAccepted = NO;
+}
+
+- (void)touchDownRecordButton:(id)sender {
+    // clear
+    recordingAccepted = NO;
+    [self.voiceRecorder deleteRecording];
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
+    
+    // start recording
+    [[AVAudioSession sharedInstance] setActive:YES error:nil];
+    [self.voiceRecorder prepareToRecord];
+    [self.voiceRecorder record];
+    
+    self.recordTimer = nil;
+    self.recordTimer = [[NSTimer alloc]initWithFireDate:[[NSDate alloc]initWithTimeIntervalSinceNow:0] interval:0.1 target:self selector:@selector(updateVoiceProgress:) userInfo:nil repeats:YES];
+    self.recordTimer = [NSTimer scheduledTimerWithTimeInterval:(voiceLengthInSecond / 1000) target:self selector:@selector(updateVoiceProgress:) userInfo:nil repeats:YES];
+    [self didStartRecording];
+}
+
+- (void)updateVoiceProgress:(NSTimer *)sender
+{
+    static CGFloat addUp = 1.0 / 1000;
+    if (self.voiceProgressView.progress < 1.0) {
+        self.voiceProgressView.progress += addUp;
+    } else {
+        // stop it
+        [self.voiceRecorder stop];
+        [[AVAudioSession sharedInstance] setActive:NO error:nil];
+    }
+    
+}
+
+-(void)audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag
+{
+    [self.recordTimer invalidate];
+    self.voiceProgressView.progress = 0;
+
+    if (recordingAccepted) {
+        AVAudioPlayer * player = [[AVAudioPlayer alloc] initWithContentsOfURL:recorder.url error:nil];
+        [self didFinishRecording:recorder.url duration:player.duration];
+    } else {
+        [self didCancelRecording];
+    }
+}
+
+-(void)audioRecorderEncodeErrorDidOccur:(AVAudioRecorder *)recorder error:(NSError *)error
+{
+    recordingAccepted = NO;
+    [self didCancelRecording];
+}
+
+-(void)audioRecorderEndInterruption:(AVAudioRecorder *)recorder withOptions:(NSUInteger)flags
+{
+    recordingAccepted = NO;
+    [self didCancelRecording];
+}
+
+-(void)didStartRecording
+{
+    // to be overwritten
+}
+
+-(void)didFinishRecording:(NSURL *)fileURL duration:(NSTimeInterval)duration
+{
+    // to be overwritten
+    AVAudioPlayer * player = [[AVAudioPlayer alloc]initWithContentsOfURL:fileURL error:nil];
+    [player play];
+}
+
+-(void)didCancelRecording
+{
+    // to be overwritten
 }
 
 @end
