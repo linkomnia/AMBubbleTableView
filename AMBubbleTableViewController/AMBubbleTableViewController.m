@@ -28,6 +28,7 @@
 @property (nonatomic, strong) UIProgressView*       voiceProgressView;
 @property (nonatomic, strong) AVAudioRecorder*      voiceRecorder;
 @property (nonatomic, strong) AVAudioPlayer*        voicePlayer;
+@property (nonatomic, strong) UIButton*             stickerButton;
 @property (nonatomic) NSTimer*                      recordTimer;
 
 @end
@@ -150,8 +151,14 @@
     [self.textView setReturnKeyType:UIReturnKeyDefault];
     [self.textView setDelegate:self];
     [self.imageInput addSubview:self.textView];
-    
-		
+
+    self.stickerButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.stickerButton setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin];
+    [self.stickerButton setTitle:@"" forState:UIControlStateNormal];
+    [self.stickerButton setFrame:CGRectMake(self.textView.bounds.size.width - kLineHeight, 0.f, kLineHeight, kLineHeight)];
+    [self.stickerButton addTarget:self action:@selector(stickerPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.textView addSubview:self.stickerButton];
+
 	// This text view is used to get the content size
 	self.tempTextView = [[UITextView alloc] init];
     self.tempTextView.font = self.textView.font;
@@ -676,6 +683,7 @@
 - (void)textViewDidChange:(UITextView *)textView
 {
 	[self.buttonSend setEnabled:([textView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]].length > 0)];
+    self.stickerButton.hidden = self.buttonSend.enabled;
 
 	CGFloat maxHeight = self.textView.font.lineHeight * 5;
 	CGFloat textViewContentHeight = self.textView.contentSize.height;
@@ -748,6 +756,13 @@
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:bottomRow inSection:0];
         [self.tableView scrollToRowAtIndexPath:indexPath
 							  atScrollPosition:UITableViewScrollPositionBottom animated:animated];
+    }
+}
+
+- (void)stickerPressed:(id)sender
+{
+    if ([self.delegate respondsToSelector:@selector(stickerButtonClick:)]) {
+        [self.delegate stickerButtonClick:self];
     }
 }
 

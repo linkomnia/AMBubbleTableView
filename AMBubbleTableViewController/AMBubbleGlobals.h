@@ -55,6 +55,7 @@ typedef enum {
 - (void)imageButtonClick:(id)controller;
 - (void)didTapErrorIconAtIndexPath:(NSIndexPath *)indexPath;
 - (void)didTapVoiceButtonAtIndexPath:(NSIndexPath *)indexPath;
+- (void)stickerButtonClick:(id)controller;
 @end
 
 @protocol AMBubbleAccessory <NSObject>
