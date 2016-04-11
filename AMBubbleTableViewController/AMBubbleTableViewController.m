@@ -154,7 +154,7 @@
 
     self.stickerButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.stickerButton setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin];
-    [self.stickerButton setTitle:@"" forState:UIControlStateNormal];
+    [self.stickerButton setTitle:@"😀" forState:UIControlStateNormal];
     [self.stickerButton setFrame:CGRectMake(self.textView.bounds.size.width - kLineHeight, 0.f, kLineHeight, kLineHeight)];
     [self.stickerButton addTarget:self action:@selector(stickerPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.textView addSubview:self.stickerButton];
