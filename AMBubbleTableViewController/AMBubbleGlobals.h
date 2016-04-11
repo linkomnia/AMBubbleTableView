@@ -37,7 +37,7 @@ typedef enum {
 - (NSString *)textForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (NSDate *)timestampForRowAtIndexPath:(NSIndexPath *)indexPath;
 @optional
-- (UIImage*)msgImageForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (id)msgImageForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (NSURL *)msgVoiceURLForRowAtIndexPath:(NSIndexPath *)indexPath; // NSURL for m4a
 - (float)msgVoiceLengthForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UIImage*)avatarForRowAtIndexPath:(NSIndexPath *)indexPath;

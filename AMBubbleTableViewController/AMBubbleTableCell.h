@@ -9,9 +9,11 @@
 #import "AMBubbleGlobals.h"
 #import "AMBubbleFlatAccessoryView.h"
 
+@class FLAnimatedImageView;
+
 @interface AMBubbleTableCell : UITableViewCell
 
-@property (nonatomic, strong) UIImageView* msgImageView;
+@property (nonatomic, strong) FLAnimatedImageView* msgImageView;
 @property (nonatomic, strong) UITextView*	textView;
 @property (nonatomic, strong) UIImageView*	imageBackground;
 @property (nonatomic, strong) UILabel*		labelUsername;

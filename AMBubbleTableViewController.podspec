@@ -13,4 +13,5 @@ Pod::Spec.new do |s|
   s.library      = 'c++'
   s.requires_arc = true
   s.social_media_url = 'https://twitter.com/theandreamazz'
+  s.dependency 'FLAnimatedImage', '~> 1.0'
 end

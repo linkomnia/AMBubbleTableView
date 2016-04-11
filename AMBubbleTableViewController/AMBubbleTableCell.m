@@ -9,6 +9,8 @@
 #import "AMBubbleTableCell.h"
 #import "AMBubbleAccessoryView.h"
 #import <QuartzCore/QuartzCore.h>
+#import "FLAnimatedImage.h"
+#import "FLAnimatedImageView.h"
 
 @interface AMBubbleTableCell ()
 
@@ -31,7 +33,7 @@
 		self.imageBackground = [[UIImageView alloc] init];
 		self.labelUsername = [[UILabel alloc] init];
 		self.bubbleAccessory = [[NSClassFromString(options[AMOptionsAccessoryClass]) alloc] init];
-        self.msgImageView = [[UIImageView alloc] init];
+        self.msgImageView = [[FLAnimatedImageView alloc] init];
 		[self.bubbleAccessory setOptions:options];
 		[self.contentView addSubview:self.imageBackground];
 		[self.imageBackground addSubview:self.textView];
@@ -76,14 +78,20 @@
 
     CGSize sizeImage;
     if (params[@"msgImage"]) {
-        UIImage *img = params[@"msgImage"];
+        id img = params[@"msgImage"];
+        CGSize imgSize = CGSizeZero;
+        if ([img isKindOfClass:[UIImage class]]) {
+            imgSize = ((UIImage *)img).size;
+        } else if ([img isKindOfClass:[FLAnimatedImage class]]) {
+            imgSize = ((FLAnimatedImage *)img).size;
+        }
         CGFloat width = 0, height = 0;
-        if (img.size.width > img.size.height) {
+        if (imgSize.width > imgSize.height) {
             width = kMessageImageWidth;
-            height = img.size.height / img.size.width * width;
+            height = imgSize.height / imgSize.width * width;
         } else {
             height = kMessageImageHeight;
-            width = img.size.width / img.size.height * height;
+            width = imgSize.width / imgSize.height * height;
         }
         sizeImage = CGSizeMake(width, height);
     } else {
@@ -256,7 +264,12 @@
 	[self.textView setText:textParams[@"text"]];
     [self.msgImageView setFrame:msgImageFrame];
     if (textParams[@"msgImage"]) {
-        self.msgImageView.image = textParams[@"msgImage"];
+        id image = textParams[@"msgImage"];
+        if ([image isKindOfClass:[UIImage class]]) {
+            self.msgImageView.image = image;
+        } else if ([image isKindOfClass:[FLAnimatedImage class]]) {
+            self.msgImageView.animatedImage = image;
+        }
     } else {
         self.msgImageView.image = nil;
     }

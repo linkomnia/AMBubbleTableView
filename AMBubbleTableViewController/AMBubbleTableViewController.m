@@ -7,6 +7,8 @@
 //
 
 #import "AMBubbleTableViewController.h"
+#import "FLAnimatedImageView.h"
+#import "FLAnimatedImage.h"
 
 #define kInputHeight 40.0f
 #define kLineHeight 30.0f
@@ -331,7 +333,7 @@
 	AMBubbleCellType type = [self.dataSource cellTypeForRowAtIndexPath:indexPath];
 	NSString* cellID = [NSString stringWithFormat:@"cell_%d", type];
 	NSString* text = [self.dataSource textForRowAtIndexPath:indexPath];
-    UIImage* msgImage;
+    id msgImage;
     if ([self.dataSource respondsToSelector:@selector(msgImageForRowAtIndexPath:)]) {
         msgImage = [self.dataSource msgImageForRowAtIndexPath:indexPath];
     } else {
@@ -520,15 +522,21 @@
     
     CGSize sizeImage = CGSizeMake(0, 0);
     if ([self.dataSource respondsToSelector:@selector(msgImageForRowAtIndexPath:)]) {
-        UIImage *img = [self.dataSource msgImageForRowAtIndexPath:indexPath];
+        id img = [self.dataSource msgImageForRowAtIndexPath:indexPath];
         if (img) {
+            CGSize imgSize = CGSizeZero;
+            if ([img isKindOfClass:[UIImage class]]) {
+                imgSize = ((UIImage *)img).size;
+            } else if ([img isKindOfClass:[FLAnimatedImage class]]) {
+                imgSize = ((FLAnimatedImage *)img).size;
+            }
             CGFloat width = 0, height = 0;
-            if (img.size.width > img.size.height) {
+            if (imgSize.width > imgSize.height) {
                 width = kMessageImageWidth;
-                height = img.size.height / img.size.width * width;
+                height = imgSize.height / imgSize.width * width;
             } else {
                 height = kMessageImageHeight;
-                width = img.size.width / img.size.height * height;
+                width = imgSize.width / imgSize.height * height;
             }
             sizeImage = CGSizeMake(width, height);
         }
